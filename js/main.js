@@ -2,70 +2,30 @@ const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDowbjwc
 
 const WSP = "56949255771";
 
-const productos = [
-  {
-    id: 1, 
-    cat: "alimentos",
-    nombre: "Aceite Vegetal 5L",
-    desc: "Botella de 5 litros de aceite vegetal puro. Ideal para cocina industrial, restaurants y almacenes. Disponible en caja.",
-    precio: "Consultar precio",
-    emoji: "🫙",
-    tags: ["aceite", "alimentos", "cocina"]
-  },
-  {
-    id: 2, cat: "limpieza",
-    nombre: "Papel Higiénico (Paquete)",
-    desc: "Paquete de papel higiénico doble hoja. Alta absorción. Disponible en distintas cantidades: 4, 8, 12 unidades.",
-    precio: "Consultar precio",
-    emoji: "🧻",
-    tags: ["papel higiénico", "limpieza", "baño"]
-  },
-  {
-    id: 3, cat: "limpieza",
-    nombre: "Servilletas Okey",
-    desc: "Servilletas Okey de papel suave. Pack económico para negocios de alimentación, cafeterías y eventos.",
-    precio: "Consultar precio",
-    emoji: "🗒️",
-    tags: ["servilletas", "okey", "papel"]
-  },
-  {
-    id: 4, cat: "congelados",
-    nombre: "Papas Pre-Fritas",
-    desc: "Bolsa de papas pre-fritas congeladas, listas para freír. Presentación para servicio de alimentación.",
-    precio: "Consultar precio",
-    emoji: "🍟",
-    tags: ["papas fritas", "congelados", "alimentos"]
-  },
-  {
-    id: 5, cat: "alimentos",
-    nombre: "Jugos en Caja",
-    desc: "Cajas de jugo de distintos sabores. Presentación 1L o 200ml. Disponibles por unidad o caja completa.",
-    precio: "Consultar precio",
-    emoji: "🧃",
-    tags: ["jugos", "bebidas", "alimentos"]
-  },
-  {
-    id: 6, cat: "limpieza",
-    nombre: "Otros productos",
-    desc: "Contamos con más artículos de limpieza, alimentos y cuidado del hogar. Consúltanos por WhatsApp.",
-    precio: "Consultar",
-    emoji: "📦",
-    tags: ["varios", "productos"]
-  }
-];
 
 let filtroActual = 'todos';
+let productosCSV = [];
 
 async function cargarProductosDesdeCSV() {
     try {
         const res = await fetch(SHEET_CSV_URL);
         const csvText = await res.text();
-        const productosDesdeSheet = parcearCSV(csvText);
-renderCards(productosDesdeSheet);
-        console.log(productosDesdeSheet); 
+        productosCSV = parcearCSV(csvText);
+        renderFiltros(productosCSV);
+        renderCards(productosCSV);
     } catch (error) {
         console.error("Error al cargar productos desde CSV:", error);
     }
+}
+
+function renderFiltros(lista) {
+    const categorias = ['todos', ...new Set(lista.map(p => p.categoria).filter(Boolean))];
+    const contenedor = document.getElementById('filtros');
+    contenedor.innerHTML = categorias.map(cat => `
+        <button class="filtro-btn${cat === 'todos' ? ' active' : ''}" onclick="filtrar('${cat}', this)">
+            ${cat === 'todos' ? 'Todos' : cat}
+        </button>
+    `).join('');
 }
 
 function parcearCSV(csvText) {
@@ -127,7 +87,7 @@ function filtrar(cat, btn) {
   filtroActual = cat;
   document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  const lista = cat === 'todos' ? productos : productos.filter(p => p.cat === cat);
+  const lista = cat === 'todos' ? productosCSV : productosCSV.filter(p => p.categoria === cat);
   renderCards(lista);
 }
 
