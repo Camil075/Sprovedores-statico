@@ -15,6 +15,8 @@ async function cargarProductosDesdeCSV() {
         renderCards(productosCSV);
     } catch (error) {
         console.error("Error al cargar productos desde CSV:", error);
+    } finally {
+        document.getElementById('spinner').style.display = 'none';
     }
 }
 
