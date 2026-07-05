@@ -660,18 +660,20 @@
       </div>
     </div>
 
-    <!-- TARJETA CONFIGURACIÓN CLOUDINARY -->
+    <!-- TARJETA CONFIGURACIÓN SERVICIOS -->
     <div class="cloudinary-card" id="cloudinary-card">
       <div class="settings-header" id="settings-header" onclick="toggleSettings()">
         <h3>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--verde-claro); vertical-align: middle; margin-right: 0.2rem;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-          Configuración de Cloudinary (Subida de Fotos)
+          Configuración de Servicios (Cloudinary y Google Sheets)
         </h3>
         <span id="settings-toggle-icon">▼ Mostrar Ajustes</span>
       </div>
       <div class="settings-body" id="settings-body" style="display: none;">
-        <p style="font-size: 0.9rem; color: var(--gris); margin-bottom: 1.2rem;">Configura tu preset de Cloudinary para poder subir imágenes locales directamente a la nube al crear/editar un producto.</p>
-        <div class="settings-row">
+        <p style="font-size: 0.9rem; color: var(--gris); margin-bottom: 1.2rem;">Configura tus ajustes de Cloudinary para la subida de fotos y el enlace de edición a tu planilla de Google Sheets.</p>
+        
+        <h4 style="font-size: 0.95rem; color: var(--verde); margin-bottom: 0.5rem; border-bottom: 1px solid var(--crema-oscura); padding-bottom: 0.3rem;">1. Ajustes de Cloudinary (Fotos)</h4>
+        <div class="settings-row" style="margin-bottom: 1.2rem;">
           <div class="form-group">
             <label for="cld-cloud-name">Cloud Name</label>
             <input type="text" id="cld-cloud-name" class="form-control" value="kqowzceb" placeholder="Nombre de tu cuenta Cloudinary">
@@ -680,9 +682,16 @@
             <label for="cld-preset">Upload Preset (Unsigned / Sin firmar)</label>
             <input type="text" id="cld-preset" class="form-control" placeholder="Ej: sproveedores_preset">
           </div>
-          <button class="btn btn-secondary" onclick="guardarAjustesCloudinary()" style="height: 46px; border-radius: 12px; padding: 0 1.5rem;">Guardar Ajustes</button>
         </div>
-        <div id="settings-success" style="display: none; color: var(--verde-claro); font-size: 0.9rem; margin-top: 0.8rem; font-weight: 500;">✓ Ajustes guardados correctamente en tu navegador.</div>
+
+        <h4 style="font-size: 0.95rem; color: var(--verde); margin-bottom: 0.5rem; border-bottom: 1px solid var(--crema-oscura); padding-bottom: 0.3rem;">2. Enlace a Google Sheets</h4>
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label for="sheet-edit-url">Enlace de edición de tu planilla de Google Sheets</label>
+          <input type="url" id="sheet-edit-url" class="form-control" placeholder="Pega el enlace de tu planilla aquí...">
+        </div>
+
+        <button class="btn btn-secondary" onclick="guardarAjustes()" style="height: 46px; border-radius: 12px; padding: 0 1.5rem; width: 100%; justify-content: center;">Guardar Configuración</button>
+        <div id="settings-success" style="display: none; text-align: center; color: var(--verde-claro); font-size: 0.9rem; margin-top: 0.8rem; font-weight: 500;">✓ Ajustes guardados correctamente en tu navegador.</div>
       </div>
     </div>
 
@@ -729,27 +738,10 @@
         <input type="text" class="search-input" id="search-input" placeholder="Buscar productos por nombre, categoría o descripción..." oninput="filtrarProductos()">
       </div>
       <div class="actions-wrap">
-        <button class="btn btn-primary" onclick="abrirModalAdd()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Nuevo Producto
-        </button>
-        <a href="https://docs.google.com/spreadsheets/d/1KlbVN6gocIbEMffbvseXYP0rltL1ZZTL/edit?gid=1121183582#gid=1121183582" target="_blank" class="btn btn-secondary" style="background: var(--verde); text-decoration: none; color: white;" title="Abrir tu planilla de Google Sheets para editar los productos directamente">
+        <button class="btn btn-secondary" onclick="abrirGoogleSheets()" style="background: var(--verde); color: white; display: flex; align-items: center; gap: 0.4rem;" title="Abrir tu planilla de Google Sheets para editar los productos directamente">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           Editar en Google Sheets 📊
-        </a>
-        <button class="btn btn-secondary" onclick="exportarCSV()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Exportar CSV
         </button>
-        <button class="btn btn-outline" onclick="triggerImport()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          Importar CSV
-        </button>
-        <button class="btn btn-outline" onclick="restablecerDesdeSheets()" title="Descartar todos los cambios locales y volver a descargar la base de datos de Google Sheets">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-          Restaurar de Sheets
-        </button>
-        <input type="file" id="csv-file-input" style="display: none;" accept=".csv" onchange="importarCSV(event)">
       </div>
     </div>
 
@@ -763,7 +755,6 @@
             <th>Categoría</th>
             <th>Descripción</th>
             <th style="width: 140px;">Precio</th>
-            <th style="width: 160px; text-align: right;">Acciones</th>
           </tr>
         </thead>
         <tbody id="table-body">
@@ -775,60 +766,10 @@
       </div>
       <div id="empty-state" class="empty-state" style="display: none;">
         <h3>No se encontraron productos</h3>
-        <p>Intenta cambiar el término de búsqueda o agrega un nuevo producto.</p>
+        <p>Intenta cambiar el término de búsqueda.</p>
       </div>
     </div>
 
-  </div>
-
-  <!-- MODAL DE AGREGAR/EDITAR -->
-  <div class="modal-overlay" id="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="modal-title">Editar Producto</h3>
-      </div>
-      <form id="product-form" onsubmit="guardarProducto(event)">
-        <input type="hidden" id="edit-index">
-        <div class="form-group">
-          <label for="prod-nombre">Nombre del Producto</label>
-          <input type="text" id="prod-nombre" class="form-control" required placeholder="Ej: Aceite de Girasol 1L">
-        </div>
-        <div class="form-group">
-          <label for="prod-categoria">Categoría</label>
-          <input type="text" id="prod-categoria" class="form-control" required placeholder="Ej: abarrotes, limpieza, congelados">
-        </div>
-        <div class="form-group">
-          <label for="prod-precio">Precio</label>
-          <input type="text" id="prod-precio" class="form-control" required placeholder="Ej: $1.850 o Consultar">
-        </div>
-        <div class="form-group">
-          <label for="prod-desc">Descripción</label>
-          <textarea id="prod-desc" class="form-control" rows="3" placeholder="Descripción breve del producto..."></textarea>
-        </div>
-        
-        <!-- Campo de Imagen con Subida Directa -->
-        <div class="form-group">
-          <label for="prod-img">Imagen del Producto</label>
-          <div style="display: flex; gap: 0.8rem; margin-bottom: 0.5rem;">
-            <input type="url" id="prod-img" class="form-control" placeholder="https://res.cloudinary.com/...">
-            <button type="button" class="btn btn-outline" onclick="triggerImageUpload()" style="padding: 0 1.2rem; flex-shrink: 0; white-space: nowrap; border-radius: 12px;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.2rem;"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/><polyline points="16 16 12 12 8 16"/></svg>
-              Subir Foto
-            </button>
-          </div>
-          <input type="file" id="image-file-input" style="display: none;" accept="image/*" onchange="subirImagenACloudinary(event)">
-          <div class="upload-progress-bar" id="upload-progress-bar" style="display: none; height: 5px; background: var(--crema-oscura); border-radius: 3px; overflow: hidden; margin-top: 0.5rem;">
-            <div id="upload-progress-fill" style="width: 0%; height: 100%; background: var(--verde-claro); transition: width 0.25s;"></div>
-          </div>
-          <div id="upload-status" style="font-size: 0.85rem; color: var(--gris); margin-top: 0.4rem; font-weight: 500;"></div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline" onclick="cerrarModal()">Cancelar</button>
-          <button type="submit" class="btn btn-secondary">Guardar Cambios</button>
-        </div>
-      </form>
-    </div>
   </div>
 
   <!-- PIE DE PÁGINA -->
@@ -848,12 +789,14 @@
         cargarDatos();
       }
       
-      // Cargar ajustes guardados de Cloudinary
+      // Cargar ajustes guardados de Cloudinary y Google Sheets
       const savedCloud = localStorage.getItem("cld_cloud_name") || "kqowzceb";
       const savedPreset = localStorage.getItem("cld_preset") || "preset_sproveedores";
+      const savedSheetUrl = localStorage.getItem("sheet_edit_url") || "https://docs.google.com/spreadsheets/d/1KlbVN6gocIbEMffbvseXYP0rItL1ZZTL/edit?gid=1121183582#gid=1121183582";
       
       document.getElementById("cld-cloud-name").value = savedCloud;
       document.getElementById("cld-preset").value = savedPreset;
+      document.getElementById("sheet-edit-url").value = savedSheetUrl;
     };
 
     function validarPassword(e) {
@@ -896,18 +839,26 @@
       }
     }
 
-    function guardarAjustesCloudinary() {
+    function guardarAjustes() {
       const cloud = document.getElementById("cld-cloud-name").value.trim();
       const preset = document.getElementById("cld-preset").value.trim();
+      const sheetUrl = document.getElementById("sheet-edit-url").value.trim();
       
       localStorage.setItem("cld_cloud_name", cloud);
       localStorage.setItem("cld_preset", preset);
+      localStorage.setItem("sheet_edit_url", sheetUrl);
       
       const success = document.getElementById("settings-success");
       success.style.display = "block";
       setTimeout(() => {
         success.style.display = "none";
       }, 3000);
+    }
+
+    function abrirGoogleSheets() {
+      const defaultUrl = "https://docs.google.com/spreadsheets/d/1KlbVN6gocIbEMffbvseXYP0rItL1ZZTL/edit?gid=1121183582#gid=1121183582";
+      const url = localStorage.getItem("sheet_edit_url") || document.getElementById("sheet-edit-url").value.trim() || defaultUrl;
+      window.open(url, "_blank");
     }
 
     function triggerQuickUpload() {
@@ -1077,21 +1028,8 @@
       e.target.value = ""; // Reset del selector de archivos
     }
 
-    // CARGA DE DATOS ORIGINALES DESDE SHEET O DESDE MEMORIA LOCAL (LOCALSTORAGE)
-    async function cargarDatos(forzarReset = false) {
-      if (!forzarReset) {
-        const localData = localStorage.getItem("admin_productos");
-        if (localData) {
-          try {
-            productos = JSON.parse(localData);
-            renderTabla(productos);
-            return;
-          } catch (e) {
-            console.error("Error al parsear productos desde memoria local:", e);
-          }
-        }
-      }
-
+    // CARGA DE DATOS ORIGINALES DESDE SHEET
+    async function cargarDatos() {
       const loading = document.getElementById("loading-state");
       loading.style.display = "block";
       loading.innerHTML = "<p>Cargando productos de la base de datos de Google Sheets...</p>";
@@ -1100,10 +1038,6 @@
         const res = await fetch(SHEET_CSV_URL);
         const csvText = await res.text();
         productos = parcearCSV(csvText);
-        
-        // Guardar en la memoria local
-        localStorage.setItem("admin_productos", JSON.stringify(productos));
-        
         renderTabla(productos);
       } catch (error) {
         console.error("Error al cargar los datos:", error);
@@ -1111,13 +1045,6 @@
           <p style="color: var(--rojo);">Error al conectar con la base de datos de Google Sheets.</p>
           <button class="btn btn-outline" style="margin-top: 1rem;" onclick="cargarDatos()">Reintentar Cargar</button>
         `;
-      }
-    }
-
-    function restablecerDesdeSheets() {
-      if (confirm("¿Estás seguro de que deseas descartar todos tus cambios locales y volver a cargar los productos publicados originalmente en Google Sheets?")) {
-        localStorage.removeItem("admin_productos");
-        cargarDatos(true);
       }
     }
 
@@ -1190,10 +1117,6 @@
           <td><span class="badge">${p.categoria}</span></td>
           <td><div class="prod-desc" title="${p.descripcion}">${p.descripcion}</div></td>
           <td><strong>${p.precio}</strong></td>
-          <td style="text-align: right;">
-            <button class="btn-action btn-edit" onclick="abrirModalEdit(${idx})">Editar</button>
-            <button class="btn-action btn-delete" onclick="eliminarProducto(${idx})">Eliminar</button>
-          </td>
         `;
         tbody.appendChild(tr);
       });
@@ -1215,135 +1138,6 @@
       renderTabla(filtrados);
     }
 
-    // ACCIONES DE PRODUCTO
-    const modal = document.getElementById("modal-overlay");
-    
-    function abrirModalAdd() {
-      document.getElementById("modal-title").innerText = "Agregar Nuevo Producto";
-      document.getElementById("edit-index").value = "";
-      document.getElementById("product-form").reset();
-      document.getElementById("upload-status").innerText = "";
-      document.getElementById("upload-progress-bar").style.display = "none";
-      modal.classList.add("active");
-    }
-
-    function abrirModalEdit(idx) {
-      document.getElementById("modal-title").innerText = "Editar Producto";
-      document.getElementById("edit-index").value = idx;
-      document.getElementById("upload-status").innerText = "";
-      document.getElementById("upload-progress-bar").style.display = "none";
-      
-      const p = productos[idx];
-      document.getElementById("prod-nombre").value = p.nombre || "";
-      document.getElementById("prod-categoria").value = p.categoria || "";
-      document.getElementById("prod-precio").value = p.precio || "";
-      document.getElementById("prod-desc").value = p.descripcion || "";
-      document.getElementById("prod-img").value = p.imagen_url || "";
-      
-      modal.classList.add("active");
-    }
-
-    function cerrarModal() {
-      modal.classList.remove("active");
-    }
-
-    function guardarProducto(e) {
-      e.preventDefault();
-      const idxStr = document.getElementById("edit-index").value;
-      
-      const nuevoProd = {
-        nombre: document.getElementById("prod-nombre").value.trim(),
-        descripcion: document.getElementById("prod-desc").value.trim(),
-        precio: document.getElementById("prod-precio").value.trim(),
-        categoria: document.getElementById("prod-categoria").value.trim().toLowerCase(),
-        imagen_url: document.getElementById("prod-img").value.trim()
-      };
-      
-      if (idxStr !== "") {
-        productos[parseInt(idxStr)] = nuevoProd;
-      } else {
-        productos.push(nuevoProd);
-      }
-      
-      cerrarModal();
-      document.getElementById("search-input").value = "";
-      
-      // Guardar cambios en memoria local
-      localStorage.setItem("admin_productos", JSON.stringify(productos));
-      
-      renderTabla(productos);
-    }
-
-    function eliminarProducto(idx) {
-      if (confirm(`¿Estás seguro de que deseas eliminar el producto "${productos[idx].nombre}"?`)) {
-        productos.splice(idx, 1);
-        document.getElementById("search-input").value = "";
-        
-        // Guardar cambios en memoria local
-        localStorage.setItem("admin_productos", JSON.stringify(productos));
-        
-        renderTabla(productos);
-      }
-    }
-
-    // EXPORTAR A CSV
-    function exportarCSV() {
-      if (productos.length === 0) {
-        alert("No hay productos para exportar.");
-        return;
-      }
-      
-      const csvContent = objectToCSV(productos);
-      const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
-      const url = URL.createObjectURL(blob);
-      
-      link.setAttribute("href", url);
-      link.setAttribute("download", "productos_actualizados.csv");
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Mostrar alerta instructiva
-      alert("¡Archivo CSV descargado con éxito!\n\nPASO OBLIGATORIO PARA QUE LOS CAMBIOS SE VEAN EN LA WEB:\n1. Abre tu planilla de Google Sheets.\n2. Ve a 'Archivo > Importar > Subir'.\n3. Sube el archivo 'productos_actualizados.csv' que acabas de descargar.\n4. Elige la opción 'Reemplazar hoja actual' e importa los datos.");
-    }
-
-    // IMPORTAR DESDE CSV
-    function triggerImport() {
-      document.getElementById("csv-file-input").click();
-    }
-
-    function importarCSV(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        const text = evt.target.result;
-        try {
-          const importados = parcearCSV(text);
-          if (importados.length > 0) {
-            if (confirm(`Se detectaron ${importados.length} productos en el archivo. ¿Deseas reemplazar la lista actual por esta nueva lista?`)) {
-              productos = importados;
-              
-              // Guardar cambios en memoria local
-              localStorage.setItem("admin_productos", JSON.stringify(productos));
-              
-              renderTabla(productos);
-              document.getElementById("search-input").value = "";
-            }
-          } else {
-            alert("No se pudieron encontrar productos válidos en el CSV. Verifica las columnas.");
-          }
-        } catch (err) {
-          alert("Error al parsear el archivo CSV.");
-          console.error(err);
-        }
-      };
-      reader.readAsText(file);
-      e.target.value = "";
-    }
   </script>
 </body>
 </html>
