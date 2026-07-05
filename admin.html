@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SProveedores – Panel de Administración</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --verde: #1a4a2e;
+      --verde-claro: #2d7a4f;
+      --crema: #f5f0e8;
+      --crema-oscura: #e8e0ce;
+      --naranja: #e07b2a;
+      --texto: #1a1a1a;
+      --gris: #666;
+      --blanco: #ffffff;
+      --rojo: #d93838;
+      --sombra: rgba(0,0,0,0.08);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--crema);
+      color: var(--texto);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--verde);
+      padding: 1.2rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--crema);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+    }
+
+    .logo span {
+      color: var(--naranja);
+    }
+
+    .btn-logout {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--crema);
+      border: 1px solid rgba(255,255,255,0.25);
+      padding: 0.5rem 1.2rem;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      background: var(--rojo);
+      border-color: var(--rojo);
+      color: white;
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      flex-grow: 1;
+    }
+
+    /* LOGIN GATE */
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--crema);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 1rem;
+    }
+
+    .login-card {
+      background: var(--blanco);
+      border: 1px solid var(--crema-oscura);
+      border-radius: 24px;
+      padding: 3rem 2rem;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    .login-card h2 {
+      font-family: 'Playfair Display', serif;
+      color: var(--verde);
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .login-card p {
+      color: var(--gris);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--gris);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.9rem 1.2rem;
+      border: 1px solid var(--crema-oscura);
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      background: #fafaf8;
+      transition: all 0.2s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--verde-claro);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(45,122,79,0.15);
+    }
+
+    .btn-login {
+      width: 100%;
+      background: var(--verde);
+      color: white;
+      border: none;
+      padding: 1rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .btn-login:hover {
+      background: var(--verde-claro);
+    }
+
+    .btn-login:active {
+      transform: scale(0.98);
+    }
+
+    .login-error {
+      color: var(--rojo);
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    /* SECCIÓN INSTRUCCIONES */
+    .instructions-card {
+      background: var(--blanco);
+      border: 1px solid var(--crema-oscura);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 20px var(--sombra);
+    }
+
+    .instructions-card h2 {
+      font-family: 'Playfair Display', serif;
+      color: var(--verde);
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .step {
+      background: #fbfbf9;
+      border: 1px solid rgba(0,0,0,0.03);
+      border-radius: 12px;
+      padding: 1.2rem;
+      position: relative;
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      background: var(--naranja);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .step h4 {
+      font-size: 1rem;
+      margin-bottom: 0.4rem;
+      color: var(--verde);
+    }
+
+    .step p {
+      font-size: 0.88rem;
+      color: var(--gris);
+      line-height: 1.4;
+    }
+
+    /* CLOUDINARY SETTINGS CARD */
+    .cloudinary-card {
+      background: var(--blanco);
+      border: 1px solid var(--crema-oscura);
+      border-radius: 20px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 20px var(--sombra);
+    }
+
+    .settings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .settings-header h3 {
+      font-family: 'Playfair Display', serif;
+      color: var(--verde);
+      font-size: 1.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .settings-header span {
+      font-size: 0.8rem;
+      color: var(--gris);
+      transition: transform 0.3s;
+    }
+
+    .settings-header.active span {
+      transform: rotate(180deg);
+    }
+
+    .settings-body {
+      margin-top: 1.2rem;
+      border-top: 1px solid var(--crema-oscura);
+      padding-top: 1.2rem;
+    }
+
+    .settings-row {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .settings-row .form-group {
+      flex: 1;
+      min-width: 240px;
+      margin-bottom: 0;
+    }
+
+    /* CONTROL TOOLBAR */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .search-wrap {
+      flex-grow: 1;
+      max-width: 450px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.8rem 1.2rem 0.8rem 2.5rem;
+      border: 1px solid var(--crema-oscura);
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      background: var(--blanco);
+      box-shadow: 0 2px 8px var(--sombra);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gris);
+      pointer-events: none;
+    }
+
+    .actions-wrap {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.8rem 1.4rem;
+      border-radius: 55px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--naranja);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #cd6a21;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(224,123,42,0.25);
+    }
+
+    .btn-secondary {
+      background: var(--verde);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: var(--verde-claro);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(26,74,46,0.25);
+    }
+
+    .btn-outline {
+      background: var(--blanco);
+      color: var(--texto);
+      border: 1px solid var(--crema-oscura);
+      box-shadow: 0 2px 8px var(--sombra);
+    }
+
+    .btn-outline:hover {
+      background: var(--crema-oscura);
+      transform: translateY(-1px);
+    }
+
+    /* TABLA DE PRODUCTOS */
+    .table-container {
+      background: var(--blanco);
+      border: 1px solid var(--crema-oscura);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px var(--sombra);
+      margin-bottom: 2rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 1.2rem 1.5rem;
+      border-bottom: 1px solid var(--crema-oscura);
+    }
+
+    th {
+      background: #fafaf8;
+      font-weight: 700;
+      color: var(--verde);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .img-preview {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid var(--crema-oscura);
+      background: #fbfbf9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .prod-name {
+      font-weight: 700;
+      color: var(--verde);
+      margin-bottom: 0.2rem;
+    }
+
+    .prod-desc {
+      font-size: 0.88rem;
+      color: var(--gris);
+      max-width: 350px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: rgba(45,122,79,0.1);
+      color: var(--verde-claro);
+    }
+
+    .btn-action {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.4rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+    }
+
+    .btn-edit {
+      color: var(--verde-claro);
+      margin-right: 0.8rem;
+    }
+
+    .btn-edit:hover {
+      background: rgba(45,122,79,0.1);
+    }
+
+    .btn-delete {
+      color: var(--rojo);
+    }
+
+    .btn-delete:hover {
+      background: rgba(217,56,56,0.1);
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      padding: 4rem 2rem;
+      text-align: center;
+      color: var(--gris);
+    }
+
+    .empty-state p {
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    /* MODAL DE EDICIÓN */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: var(--blanco);
+      border-radius: 24px;
+      width: 90%;
+      max-width: 550px;
+      padding: 2.5rem;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      margin-bottom: 1.8rem;
+      text-align: center;
+    }
+
+    .modal-header h3 {
+      font-family: 'Playfair Display', serif;
+      color: var(--verde);
+      font-size: 1.8rem;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    /* FOOTER */
+    footer {
+      background: #111;
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.8rem;
+      margin-top: auto;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .search-wrap {
+        max-width: 100%;
+      }
+      .actions-wrap {
+        justify-content: space-between;
+      }
+      .btn {
+        flex-grow: 1;
+        justify-content: center;
+      }
+      th:nth-child(3), td:nth-child(3), th:nth-child(4), td:nth-child(4) {
+        display: none; /* Oculta descripción y categoría en móviles */
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ACCESO POR CONTRASEÑA -->
+  <div class="login-overlay" id="login-overlay">
+    <div class="login-card">
+      <h2>SProveedores</h2>
+      <p>Panel de Administración de Productos</p>
+      <form id="login-form" onsubmit="validarPassword(event)">
+        <div class="form-group">
+          <label for="admin-pass">Contraseña de acceso</label>
+          <input type="password" id="admin-pass" class="form-control" placeholder="••••••••" required autofocus>
+        </div>
+        <button type="submit" class="btn-login">Ingresar al Panel</button>
+        <div class="login-error" id="login-error">Contraseña incorrecta. Por favor, reintenta.</div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CABECERA -->
+  <header>
+    <div class="logo"><span>S</span>Proveedores · Admin</div>
+    <button class="btn-logout" onclick="cerrarSesion()">Salir</button>
+  </header>
+
+  <!-- CONTENIDO -->
+  <div class="container">
+
+    <!-- TARJETA INSTRUCCIONES -->
+    <div class="instructions-card">
+      <h2>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--naranja); vertical-align: middle;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        ¿Cómo actualizar el sitio web?
+      </h2>
+      <p>Esta página te permite actualizar de forma fácil la lista de productos de SProveedores. Sigue estos 3 simples pasos:</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h4>Modifica la tabla</h4>
+          <p>Usa los botones de abajo para **Agregar**, **Editar** o **Eliminar** productos visualmente en la tabla.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h4>Descarga el archivo</h4>
+          <p>Haz clic en el botón naranja **"Exportar CSV"** para descargar tu archivo de productos actualizado en tu computador.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h4>Súbelo a tu Google Sheet</h4>
+          <p>Abre tu planilla de Google Sheets. Ve a **Archivo > Importar > Subir**, arrastra el CSV descargado y selecciona **"Reemplazar hoja actual"**.</p>
+        </div>
+      </div>
+
+      <!-- Ayuda de Cloudinary -->
+      <div class="cloudinary-help" style="margin-top: 1.8rem; border-top: 1px dashed var(--crema-oscura); padding-top: 1.2rem; font-size: 0.88rem; color: var(--gris);">
+        <details>
+          <summary style="font-weight: 700; color: var(--verde); cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+            ¿Cómo configurar la subida directa a Cloudinary?
+          </summary>
+          <div style="margin-top: 0.8rem; padding-left: 1rem; line-height: 1.5; display: flex; flex-direction: column; gap: 0.5rem;">
+            <p>1. Inicia sesión en tu consola de <a href="https://console.cloudinary.com/" target="_blank" style="color: var(--naranja); font-weight: 500;">Cloudinary</a>.</p>
+            <p>2. Ve al menú de **Settings** (el icono de engranaje en la esquina inferior izquierda).</p>
+            <p>3. En el menú lateral, selecciona **Upload** y deslízate hacia abajo hasta la sección **Upload presets**.</p>
+            <p>4. Haz clic en **Add upload preset**. Configúralo así:</p>
+            <ul style="padding-left: 1.5rem;">
+              <li><strong>Upload preset name:</strong> Copia el nombre asignado (ej: <code>sproveedores_preset</code>).</li>
+              <li><strong>Signing Mode:</strong> Cámbialo de <em>Signed</em> a <strong>Unsigned</strong> (Obligatorio para permitir subidas desde la web).</li>
+              <li><strong>Folder:</strong> Escribe <code>sproveedores</code> para que las fotos se organicen automáticamente en la misma carpeta que tus otras imágenes.</li>
+            </ul>
+            <p>5. Presiona **Save** arriba a la derecha y pega el nombre del preset en la sección de ajustes de abajo.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- TARJETA CONFIGURACIÓN CLOUDINARY -->
+    <div class="cloudinary-card" id="cloudinary-card">
+      <div class="settings-header" id="settings-header" onclick="toggleSettings()">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--verde-claro); vertical-align: middle; margin-right: 0.2rem;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          Configuración de Cloudinary (Subida de Fotos)
+        </h3>
+        <span id="settings-toggle-icon">▼ Mostrar Ajustes</span>
+      </div>
+      <div class="settings-body" id="settings-body" style="display: none;">
+        <p style="font-size: 0.9rem; color: var(--gris); margin-bottom: 1.2rem;">Configura tu preset de Cloudinary para poder subir imágenes locales directamente a la nube al crear/editar un producto.</p>
+        <div class="settings-row">
+          <div class="form-group">
+            <label for="cld-cloud-name">Cloud Name</label>
+            <input type="text" id="cld-cloud-name" class="form-control" value="kqowzceb" placeholder="Nombre de tu cuenta Cloudinary">
+          </div>
+          <div class="form-group">
+            <label for="cld-preset">Upload Preset (Unsigned / Sin firmar)</label>
+            <input type="text" id="cld-preset" class="form-control" placeholder="Ej: sproveedores_preset">
+          </div>
+          <button class="btn btn-secondary" onclick="guardarAjustesCloudinary()" style="height: 46px; border-radius: 12px; padding: 0 1.5rem;">Guardar Ajustes</button>
+        </div>
+        <div id="settings-success" style="display: none; color: var(--verde-claro); font-size: 0.9rem; margin-top: 0.8rem; font-weight: 500;">✓ Ajustes guardados correctamente en tu navegador.</div>
+      </div>
+    </div>
+
+    <!-- TARJETA SUBIDOR RÁPIDO DE FOTOS -->
+    <div class="cloudinary-card" id="quick-upload-card">
+      <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem; color: var(--verde);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--naranja); vertical-align: middle;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        Subidor Rápido de Fotos a la Nube 📸
+      </h3>
+      <p style="font-size: 0.88rem; color: var(--gris); margin-bottom: 1.2rem;">Sube fotos directamente a tu Cloudinary desde aquí. Obtén el enlace seguro al instante para copiarlo y pegarlo directamente en tu Google Sheet.</p>
+      
+      <div style="display: flex; gap: 1.5rem; align-items: center; background: #fafaf8; padding: 1.2rem; border-radius: 16px; border: 1px dashed var(--crema-oscura);">
+        <button class="btn btn-primary" onclick="triggerQuickUpload()" style="margin: 0; display: flex; align-items: center; gap: 0.4rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Seleccionar Foto
+        </button>
+        <input type="file" id="quick-image-file-input" style="display: none;" accept="image/*" onchange="subirFotoRapida(event)">
+        
+        <div id="quick-upload-status" style="font-size: 0.9rem; color: var(--gris); font-weight: 500; flex: 1;">Ningún archivo seleccionado</div>
+        
+        <!-- Vista previa pequeña -->
+        <img id="quick-img-preview" src="" alt="Vista previa" style="display: none; width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid var(--crema-oscura);">
+      </div>
+
+      <!-- Barra de progreso para subida rápida -->
+      <div id="quick-upload-progress-bar" style="display: none; width: 100%; height: 6px; background: var(--crema-oscura); border-radius: 3px; margin-top: 0.8rem; overflow: hidden;">
+        <div id="quick-upload-progress-fill" style="width: 0%; height: 100%; background: var(--verde-claro); transition: width 0.1s ease;"></div>
+      </div>
+
+      <!-- Input con el link y el botón de copiar -->
+      <div id="quick-link-container" style="display: none; margin-top: 1.2rem; align-items: center; gap: 0.8rem;">
+        <input type="text" id="quick-result-url" class="form-control" readonly style="flex: 1; font-family: monospace; font-size: 0.85rem; background: #f0f0eb; border: 1px solid var(--crema-oscura); height: 40px; border-radius: 8px; padding: 0 0.8rem;">
+        <button class="btn btn-secondary" onclick="copiarEnlaceRapido()" style="margin: 0; height: 40px; border-radius: 8px; padding: 0 1.2rem; font-weight: 600;">
+          Copiar Enlace 📋
+        </button>
+      </div>
+      <div id="copy-toast" style="display: none; color: var(--verde-claro); font-size: 0.85rem; margin-top: 0.5rem; font-weight: 600; text-align: right;">✓ ¡Enlace copiado al portapapeles! Listo para pegar en Google Sheets.</div>
+    </div>
+
+    <!-- BARRA DE HERRAMIENTAS -->
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="search-input" id="search-input" placeholder="Buscar productos por nombre, categoría o descripción..." oninput="filtrarProductos()">
+      </div>
+      <div class="actions-wrap">
+        <button class="btn btn-primary" onclick="abrirModalAdd()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nuevo Producto
+        </button>
+        <a href="https://docs.google.com/spreadsheets/d/1KlbVN6gocIbEMffbvseXYP0rltL1ZZTL/edit?gid=1121183582#gid=1121183582" target="_blank" class="btn btn-secondary" style="background: var(--verde); text-decoration: none; color: white;" title="Abrir tu planilla de Google Sheets para editar los productos directamente">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Editar en Google Sheets 📊
+        </a>
+        <button class="btn btn-secondary" onclick="exportarCSV()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportar CSV
+        </button>
+        <button class="btn btn-outline" onclick="triggerImport()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Importar CSV
+        </button>
+        <button class="btn btn-outline" onclick="restablecerDesdeSheets()" title="Descartar todos los cambios locales y volver a descargar la base de datos de Google Sheets">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Restaurar de Sheets
+        </button>
+        <input type="file" id="csv-file-input" style="display: none;" accept=".csv" onchange="importarCSV(event)">
+      </div>
+    </div>
+
+    <!-- CONTENEDOR DE LA TABLA -->
+    <div class="table-container">
+      <table id="products-table">
+        <thead>
+          <tr>
+            <th style="width: 80px;">Imagen</th>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Descripción</th>
+            <th style="width: 140px;">Precio</th>
+            <th style="width: 160px; text-align: right;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <!-- Carga dinámica -->
+        </tbody>
+      </table>
+      <div id="loading-state" class="empty-state">
+        <p>Cargando productos de la base de datos...</p>
+      </div>
+      <div id="empty-state" class="empty-state" style="display: none;">
+        <h3>No se encontraron productos</h3>
+        <p>Intenta cambiar el término de búsqueda o agrega un nuevo producto.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODAL DE AGREGAR/EDITAR -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Editar Producto</h3>
+      </div>
+      <form id="product-form" onsubmit="guardarProducto(event)">
+        <input type="hidden" id="edit-index">
+        <div class="form-group">
+          <label for="prod-nombre">Nombre del Producto</label>
+          <input type="text" id="prod-nombre" class="form-control" required placeholder="Ej: Aceite de Girasol 1L">
+        </div>
+        <div class="form-group">
+          <label for="prod-categoria">Categoría</label>
+          <input type="text" id="prod-categoria" class="form-control" required placeholder="Ej: abarrotes, limpieza, congelados">
+        </div>
+        <div class="form-group">
+          <label for="prod-precio">Precio</label>
+          <input type="text" id="prod-precio" class="form-control" required placeholder="Ej: $1.850 o Consultar">
+        </div>
+        <div class="form-group">
+          <label for="prod-desc">Descripción</label>
+          <textarea id="prod-desc" class="form-control" rows="3" placeholder="Descripción breve del producto..."></textarea>
+        </div>
+        
+        <!-- Campo de Imagen con Subida Directa -->
+        <div class="form-group">
+          <label for="prod-img">Imagen del Producto</label>
+          <div style="display: flex; gap: 0.8rem; margin-bottom: 0.5rem;">
+            <input type="url" id="prod-img" class="form-control" placeholder="https://res.cloudinary.com/...">
+            <button type="button" class="btn btn-outline" onclick="triggerImageUpload()" style="padding: 0 1.2rem; flex-shrink: 0; white-space: nowrap; border-radius: 12px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.2rem;"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/><polyline points="16 16 12 12 8 16"/></svg>
+              Subir Foto
+            </button>
+          </div>
+          <input type="file" id="image-file-input" style="display: none;" accept="image/*" onchange="subirImagenACloudinary(event)">
+          <div class="upload-progress-bar" id="upload-progress-bar" style="display: none; height: 5px; background: var(--crema-oscura); border-radius: 3px; overflow: hidden; margin-top: 0.5rem;">
+            <div id="upload-progress-fill" style="width: 0%; height: 100%; background: var(--verde-claro); transition: width 0.25s;"></div>
+          </div>
+          <div id="upload-status" style="font-size: 0.85rem; color: var(--gris); margin-top: 0.4rem; font-weight: 500;"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="cerrarModal()">Cancelar</button>
+          <button type="submit" class="btn btn-secondary">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- PIE DE PÁGINA -->
+  <footer>
+    <strong>SProveedores</strong> · Panel de Control de Contenido Privado · Familia Sepúlveda
+  </footer>
+
+  <script>
+    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUItWTU1FOvPx3xLFS4JRAXZYV4yc3q9zj66W-fQrjG1un_QMXzHIVPHQ0Pwj3eQ/pub?gid=1121183582&single=true&output=csv";
+    const PASS_CORRECTA = "sepulveda2026";
+    let productos = [];
+
+    // Verificación de sesión e inicialización de Configuración
+    window.onload = function() {
+      if (sessionStorage.getItem("admin_autenticado") === "true") {
+        document.getElementById("login-overlay").style.display = "none";
+        cargarDatos();
+      }
+      
+      // Cargar ajustes guardados de Cloudinary
+      const savedCloud = localStorage.getItem("cld_cloud_name") || "kqowzceb";
+      const savedPreset = localStorage.getItem("cld_preset") || "preset_sproveedores";
+      
+      document.getElementById("cld-cloud-name").value = savedCloud;
+      document.getElementById("cld-preset").value = savedPreset;
+    };
+
+    function validarPassword(e) {
+      e.preventDefault();
+      const pass = document.getElementById("admin-pass").value;
+      const errorDiv = document.getElementById("login-error");
+      
+      if (pass === PASS_CORRECTA) {
+        sessionStorage.setItem("admin_autenticado", "true");
+        document.getElementById("login-overlay").style.display = "none";
+        cargarDatos();
+      } else {
+        errorDiv.style.display = "block";
+        document.getElementById("admin-pass").focus();
+        document.getElementById("admin-pass").select();
+      }
+    }
+
+    function cerrarSesion() {
+      sessionStorage.removeItem("admin_autenticado");
+      document.getElementById("login-overlay").style.display = "flex";
+      document.getElementById("admin-pass").value = "";
+      document.getElementById("login-error").style.display = "none";
+    }
+
+    // AJUSTES CLOUDINARY
+    function toggleSettings() {
+      const body = document.getElementById("settings-body");
+      const header = document.getElementById("settings-header");
+      const toggleIcon = document.getElementById("settings-toggle-icon");
+      
+      if (body.style.display === "none") {
+        body.style.display = "block";
+        header.classList.add("active");
+        toggleIcon.innerText = "▲ Ocultar Ajustes";
+      } else {
+        body.style.display = "none";
+        header.classList.remove("active");
+        toggleIcon.innerText = "▼ Mostrar Ajustes";
+      }
+    }
+
+    function guardarAjustesCloudinary() {
+      const cloud = document.getElementById("cld-cloud-name").value.trim();
+      const preset = document.getElementById("cld-preset").value.trim();
+      
+      localStorage.setItem("cld_cloud_name", cloud);
+      localStorage.setItem("cld_preset", preset);
+      
+      const success = document.getElementById("settings-success");
+      success.style.display = "block";
+      setTimeout(() => {
+        success.style.display = "none";
+      }, 3000);
+    }
+
+    function triggerQuickUpload() {
+      const preset = localStorage.getItem("cld_preset") || document.getElementById("cld-preset").value.trim() || "preset_sproveedores";
+      if (!preset) {
+        alert("Por favor, configura tu Cloudinary 'Upload Preset' en la sección de arriba antes de subir fotos.");
+        const body = document.getElementById("settings-body");
+        if (body.style.display === "none") toggleSettings();
+        document.getElementById("cloudinary-card").scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+      document.getElementById("quick-image-file-input").click();
+    }
+
+    async function subirFotoRapida(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const cloudName = localStorage.getItem("cld_cloud_name") || "kqowzceb";
+      const preset = localStorage.getItem("cld_preset") || document.getElementById("cld-preset").value.trim() || "preset_sproveedores";
+      
+      const progressFill = document.getElementById("quick-upload-progress-fill");
+      const progressBar = document.getElementById("quick-upload-progress-bar");
+      const statusText = document.getElementById("quick-upload-status");
+      const linkContainer = document.getElementById("quick-link-container");
+      const imgPreview = document.getElementById("quick-img-preview");
+      const copyToast = document.getElementById("copy-toast");
+      
+      progressBar.style.display = "block";
+      progressFill.style.width = "0%";
+      statusText.style.color = "var(--gris)";
+      statusText.innerText = "Preparando subida...";
+      linkContainer.style.display = "none";
+      imgPreview.style.display = "none";
+      copyToast.style.display = "none";
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", preset);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, true);
+      
+      xhr.upload.onprogress = function(evt) {
+        if (evt.lengthComputable) {
+          const pct = Math.round((evt.loaded / evt.total) * 100);
+          progressFill.style.width = `${pct}%`;
+          statusText.innerText = `Subiendo: ${pct}%`;
+        }
+      };
+      
+      xhr.onload = function() {
+        progressBar.style.display = "none";
+        if (xhr.status === 200) {
+          const resData = JSON.parse(xhr.responseText);
+          const secureUrl = resData.secure_url;
+          
+          document.getElementById("quick-result-url").value = secureUrl;
+          imgPreview.src = secureUrl;
+          imgPreview.style.display = "block";
+          
+          statusText.style.color = "var(--verde-claro)";
+          statusText.innerText = "✓ ¡Listo para copiar!";
+          linkContainer.style.display = "flex";
+        } else {
+          const errData = JSON.parse(xhr.responseText || "{}");
+          statusText.style.color = "var(--rojo)";
+          statusText.innerText = `Error: ${errData.error?.message || "Revisa tu preset"}`;
+          console.error("Cloudinary quick upload error response:", xhr.responseText);
+        }
+      };
+      
+      xhr.onerror = function() {
+        progressBar.style.display = "none";
+        statusText.style.color = "var(--rojo)";
+        statusText.innerText = "Error de red al subir la imagen.";
+      };
+      
+      xhr.send(formData);
+      e.target.value = ""; // Reset del input
+    }
+
+    function copiarEnlaceRapido() {
+      const urlInput = document.getElementById("quick-result-url");
+      urlInput.select();
+      urlInput.setSelectionRange(0, 99999); /* Para móviles */
+      
+      navigator.clipboard.writeText(urlInput.value).then(() => {
+        const toast = document.getElementById("copy-toast");
+        toast.style.display = "block";
+        setTimeout(() => {
+          toast.style.display = "none";
+        }, 4000);
+      }).catch(err => {
+        console.error("Error al copiar al portapapeles:", err);
+        alert("No se pudo copiar automáticamente. Copia el texto manualmente.");
+      });
+    }
+
+    // CARGA DE IMAGEN A CLOUDINARY (XHR CON PROGRESO)
+    function triggerImageUpload() {
+      const preset = localStorage.getItem("cld_preset") || document.getElementById("cld-preset").value.trim() || "preset_sproveedores";
+      if (!preset) {
+        alert("Por favor, configura y guarda tu Cloudinary 'Upload Preset' en la sección de arriba antes de subir fotos.");
+        const body = document.getElementById("settings-body");
+        if (body.style.display === "none") toggleSettings();
+        document.getElementById("cloudinary-card").scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+      document.getElementById("image-file-input").click();
+    }
+
+    async function subirImagenACloudinary(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const cloudName = localStorage.getItem("cld_cloud_name") || "kqowzceb";
+      const preset = localStorage.getItem("cld_preset") || document.getElementById("cld-preset").value.trim() || "preset_sproveedores";
+      
+      const progressFill = document.getElementById("upload-progress-fill");
+      const progressBar = document.getElementById("upload-progress-bar");
+      const statusText = document.getElementById("upload-status");
+      
+      progressBar.style.display = "block";
+      progressFill.style.width = "0%";
+      statusText.style.color = "var(--gris)";
+      statusText.innerText = "Preparando subida...";
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", preset);
+
+      // Usar XHR para poder capturar el progreso de subida de la imagen
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, true);
+      
+      xhr.upload.onprogress = function(evt) {
+        if (evt.lengthComputable) {
+          const pct = Math.round((evt.loaded / evt.total) * 100);
+          progressFill.style.width = `${pct}%`;
+          statusText.innerText = `Subiendo imagen: ${pct}%`;
+        }
+      };
+      
+      xhr.onload = function() {
+        progressBar.style.display = "none";
+        if (xhr.status === 200) {
+          const resData = JSON.parse(xhr.responseText);
+          document.getElementById("prod-img").value = resData.secure_url;
+          statusText.style.color = "var(--verde-claro)";
+          statusText.innerText = "¡Imagen subida con éxito y enlazada!";
+        } else {
+          const errData = JSON.parse(xhr.responseText || "{}");
+          statusText.style.color = "var(--rojo)";
+          statusText.innerText = `Error al subir: ${errData.error?.message || "Revisa tu Upload Preset"}`;
+          console.error("Cloudinary XHR error response:", xhr.responseText);
+        }
+      };
+      
+      xhr.onerror = function() {
+        progressBar.style.display = "none";
+        statusText.style.color = "var(--rojo)";
+        statusText.innerText = "Error de red al intentar conectar con Cloudinary.";
+      };
+      
+      xhr.send(formData);
+      e.target.value = ""; // Reset del selector de archivos
+    }
+
+    // CARGA DE DATOS ORIGINALES DESDE SHEET O DESDE MEMORIA LOCAL (LOCALSTORAGE)
+    async function cargarDatos(forzarReset = false) {
+      if (!forzarReset) {
+        const localData = localStorage.getItem("admin_productos");
+        if (localData) {
+          try {
+            productos = JSON.parse(localData);
+            renderTabla(productos);
+            return;
+          } catch (e) {
+            console.error("Error al parsear productos desde memoria local:", e);
+          }
+        }
+      }
+
+      const loading = document.getElementById("loading-state");
+      loading.style.display = "block";
+      loading.innerHTML = "<p>Cargando productos de la base de datos de Google Sheets...</p>";
+
+      try {
+        const res = await fetch(SHEET_CSV_URL);
+        const csvText = await res.text();
+        productos = parcearCSV(csvText);
+        
+        // Guardar en la memoria local
+        localStorage.setItem("admin_productos", JSON.stringify(productos));
+        
+        renderTabla(productos);
+      } catch (error) {
+        console.error("Error al cargar los datos:", error);
+        loading.innerHTML = `
+          <p style="color: var(--rojo);">Error al conectar con la base de datos de Google Sheets.</p>
+          <button class="btn btn-outline" style="margin-top: 1rem;" onclick="cargarDatos()">Reintentar Cargar</button>
+        `;
+      }
+    }
+
+    function restablecerDesdeSheets() {
+      if (confirm("¿Estás seguro de que deseas descartar todos tus cambios locales y volver a cargar los productos publicados originalmente en Google Sheets?")) {
+        localStorage.removeItem("admin_productos");
+        cargarDatos(true);
+      }
+    }
+
+    // PARSEO DE CSV
+    function parcearCSV(csvText) {
+      const lienas = csvText.trim().split('\n');
+      if (lienas.length === 0 || !lienas[0]) return [];
+      
+      const headers = lienas[0].split(",").map(h => h.trim());
+      const filas = lienas.slice(1).map(linea => {
+        const valores = linea.match(/("([^"]|"")*"|[^,]*)(,|$)/g).slice(0, -1)
+          .map(v => v.replace(/,$/, "").replace(/^"|"$/g, "").replace(/""/g, '"').trim());
+
+        const objeto = {};
+        headers.forEach((header, i) => {
+          objeto[header] = valores[i] || "";
+        });
+        return objeto;
+      });
+      return filas.filter(p => p.nombre);
+    }
+
+    // CONVERSIÓN DE ARRAY DE PRODUCTOS A CSV
+    function objectToCSV(data) {
+      const headers = ['nombre', 'descripcion', 'precio', 'categoria', 'imagen_url'];
+      const csvRows = [];
+      csvRows.push(headers.join(','));
+      
+      for (const row of data) {
+        const values = headers.map(header => {
+          const val = row[header] || "";
+          let escaped = String(val).replace(/"/g, '""');
+          if (escaped.includes(',') || escaped.includes('\n') || escaped.includes('"')) {
+            escaped = `"${escaped}"`;
+          }
+          return escaped;
+        });
+        csvRows.push(values.join(','));
+      }
+      return csvRows.join('\n');
+    }
+
+    // RENDERIZAR TABLA DE PRODUCTOS
+    function renderTabla(lista) {
+      const tbody = document.getElementById("table-body");
+      const loading = document.getElementById("loading-state");
+      const empty = document.getElementById("empty-state");
+      
+      tbody.innerHTML = "";
+      loading.style.display = "none";
+      
+      if (lista.length === 0) {
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+      
+      lista.forEach((p, idx) => {
+        const tr = document.createElement("tr");
+        
+        const imgContent = p.imagen_url
+          ? `<img src="${p.imagen_url}" alt="${p.nombre}" class="img-preview">`
+          : `<div class="img-preview">📦</div>`;
+          
+        tr.innerHTML = `
+          <td>${imgContent}</td>
+          <td>
+            <div class="prod-name">${p.nombre}</div>
+          </td>
+          <td><span class="badge">${p.categoria}</span></td>
+          <td><div class="prod-desc" title="${p.descripcion}">${p.descripcion}</div></td>
+          <td><strong>${p.precio}</strong></td>
+          <td style="text-align: right;">
+            <button class="btn-action btn-edit" onclick="abrirModalEdit(${idx})">Editar</button>
+            <button class="btn-action btn-delete" onclick="eliminarProducto(${idx})">Eliminar</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // FILTRADO / BUSCADOR
+    function filtrarProductos() {
+      const query = document.getElementById("search-input").value.toLowerCase().trim();
+      if (!query) {
+        renderTabla(productos);
+        return;
+      }
+      
+      const filtrados = productos.filter(p => 
+        (p.nombre && p.nombre.toLowerCase().includes(query)) ||
+        (p.categoria && p.categoria.toLowerCase().includes(query)) ||
+        (p.descripcion && p.descripcion.toLowerCase().includes(query))
+      );
+      renderTabla(filtrados);
+    }
+
+    // ACCIONES DE PRODUCTO
+    const modal = document.getElementById("modal-overlay");
+    
+    function abrirModalAdd() {
+      document.getElementById("modal-title").innerText = "Agregar Nuevo Producto";
+      document.getElementById("edit-index").value = "";
+      document.getElementById("product-form").reset();
+      document.getElementById("upload-status").innerText = "";
+      document.getElementById("upload-progress-bar").style.display = "none";
+      modal.classList.add("active");
+    }
+
+    function abrirModalEdit(idx) {
+      document.getElementById("modal-title").innerText = "Editar Producto";
+      document.getElementById("edit-index").value = idx;
+      document.getElementById("upload-status").innerText = "";
+      document.getElementById("upload-progress-bar").style.display = "none";
+      
+      const p = productos[idx];
+      document.getElementById("prod-nombre").value = p.nombre || "";
+      document.getElementById("prod-categoria").value = p.categoria || "";
+      document.getElementById("prod-precio").value = p.precio || "";
+      document.getElementById("prod-desc").value = p.descripcion || "";
+      document.getElementById("prod-img").value = p.imagen_url || "";
+      
+      modal.classList.add("active");
+    }
+
+    function cerrarModal() {
+      modal.classList.remove("active");
+    }
+
+    function guardarProducto(e) {
+      e.preventDefault();
+      const idxStr = document.getElementById("edit-index").value;
+      
+      const nuevoProd = {
+        nombre: document.getElementById("prod-nombre").value.trim(),
+        descripcion: document.getElementById("prod-desc").value.trim(),
+        precio: document.getElementById("prod-precio").value.trim(),
+        categoria: document.getElementById("prod-categoria").value.trim().toLowerCase(),
+        imagen_url: document.getElementById("prod-img").value.trim()
+      };
+      
+      if (idxStr !== "") {
+        productos[parseInt(idxStr)] = nuevoProd;
+      } else {
+        productos.push(nuevoProd);
+      }
+      
+      cerrarModal();
+      document.getElementById("search-input").value = "";
+      
+      // Guardar cambios en memoria local
+      localStorage.setItem("admin_productos", JSON.stringify(productos));
+      
+      renderTabla(productos);
+    }
+
+    function eliminarProducto(idx) {
+      if (confirm(`¿Estás seguro de que deseas eliminar el producto "${productos[idx].nombre}"?`)) {
+        productos.splice(idx, 1);
+        document.getElementById("search-input").value = "";
+        
+        // Guardar cambios en memoria local
+        localStorage.setItem("admin_productos", JSON.stringify(productos));
+        
+        renderTabla(productos);
+      }
+    }
+
+    // EXPORTAR A CSV
+    function exportarCSV() {
+      if (productos.length === 0) {
+        alert("No hay productos para exportar.");
+        return;
+      }
+      
+      const csvContent = objectToCSV(productos);
+      const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute("href", url);
+      link.setAttribute("download", "productos_actualizados.csv");
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Mostrar alerta instructiva
+      alert("¡Archivo CSV descargado con éxito!\n\nPASO OBLIGATORIO PARA QUE LOS CAMBIOS SE VEAN EN LA WEB:\n1. Abre tu planilla de Google Sheets.\n2. Ve a 'Archivo > Importar > Subir'.\n3. Sube el archivo 'productos_actualizados.csv' que acabas de descargar.\n4. Elige la opción 'Reemplazar hoja actual' e importa los datos.");
+    }
+
+    // IMPORTAR DESDE CSV
+    function triggerImport() {
+      document.getElementById("csv-file-input").click();
+    }
+
+    function importarCSV(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const text = evt.target.result;
+        try {
+          const importados = parcearCSV(text);
+          if (importados.length > 0) {
+            if (confirm(`Se detectaron ${importados.length} productos en el archivo. ¿Deseas reemplazar la lista actual por esta nueva lista?`)) {
+              productos = importados;
+              
+              // Guardar cambios en memoria local
+              localStorage.setItem("admin_productos", JSON.stringify(productos));
+              
+              renderTabla(productos);
+              document.getElementById("search-input").value = "";
+            }
+          } else {
+            alert("No se pudieron encontrar productos válidos en el CSV. Verifica las columnas.");
+          }
+        } catch (err) {
+          alert("Error al parsear el archivo CSV.");
+          console.error(err);
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = "";
+    }
+  </script>
+</body>
+</html>
