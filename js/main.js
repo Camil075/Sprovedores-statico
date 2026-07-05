@@ -1,29 +1,29 @@
-const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDowbjwckdCloq34fqoolTsXt2k7oykFH7dyA5HBOf5f74KbLK45DE8SFEQ0bPTIMN9p7hHP410OYe/pub?gid=804960981&single=true&output=csv"
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUItWTU1FOvPx3xLFS4JRAXZYV4yc3q9zj66W-fQrjG1un_QMXzHIVPHQ0Pwj3eQ/pub?gid=1121183582&single=true&output=csv"
 
-const WSP = "56949255771";
+const WSP = "56990241662";
 
 
 let filtroActual = 'todos';
 let productosCSV = [];
 
 async function cargarProductosDesdeCSV() {
-    try {
-        const res = await fetch(SHEET_CSV_URL);
-        const csvText = await res.text();
-        productosCSV = parcearCSV(csvText);
-        renderFiltros(productosCSV);
-        renderCards(productosCSV);
-    } catch (error) {
-        console.error("Error al cargar productos desde CSV:", error);
-    } finally {
-        document.getElementById('spinner').style.display = 'none';
-    }
+  try {
+    const res = await fetch(SHEET_CSV_URL);
+    const csvText = await res.text();
+    productosCSV = parcearCSV(csvText);
+    renderFiltros(productosCSV);
+    renderCards(productosCSV);
+  } catch (error) {
+    console.error("Error al cargar productos desde CSV:", error);
+  } finally {
+    document.getElementById('spinner').style.display = 'none';
+  }
 }
 
 function renderFiltros(lista) {
-    const categorias = ['todos', ...new Set(lista.map(p => p.categoria).filter(Boolean))];
-    const contenedor = document.getElementById('filtros');
-    contenedor.innerHTML = categorias.map(cat => `
+  const categorias = ['todos', ...new Set(lista.map(p => p.categoria).filter(Boolean))];
+  const contenedor = document.getElementById('filtros');
+  contenedor.innerHTML = categorias.map(cat => `
         <button class="filtro-btn${cat === 'todos' ? ' active' : ''}" onclick="filtrar('${cat}', this)">
             ${cat === 'todos' ? 'Todos' : cat}
         </button>
@@ -31,19 +31,19 @@ function renderFiltros(lista) {
 }
 
 function parcearCSV(csvText) {
-    const lienas = csvText.trim().split('\n');
-    const headers = lienas[0].split(",").map(h => h.trim());
-        const filas = lienas.slice(1).map(linea => {
-        const valores = linea.match(/("([^"]|"")*"|[^,]*)(,|$)/g).slice(0, -1)
-            .map(v => v.replace(/,$/, "").replace(/^"|"$/g, "").trim());
+  const lienas = csvText.trim().split('\n');
+  const headers = lienas[0].split(",").map(h => h.trim());
+  const filas = lienas.slice(1).map(linea => {
+    const valores = linea.match(/("([^"]|"")*"|[^,]*)(,|$)/g).slice(0, -1)
+      .map(v => v.replace(/,$/, "").replace(/^"|"$/g, "").trim());
 
-        const objeto = {};
-        headers.forEach((header, i) => {
-            objeto[header] = valores[i] || "";
-        });
-        return objeto;
+    const objeto = {};
+    headers.forEach((header, i) => {
+      objeto[header] = valores[i] || "";
     });
-    return filas;
+    return objeto;
+  });
+  return filas;
 }
 
 function makeWSPLink(producto) {
@@ -58,7 +58,7 @@ function renderCards(lista) {
     const card = document.createElement('div');
     card.className = 'card';
     card.style.animationDelay = `${i * 0.07}s`;
-        const contenidoImagen = p.imagen_url
+    const contenidoImagen = p.imagen_url
       ? `<img src="${p.imagen_url}" alt="${p.nombre}" style="width:100%;height:100%;object-fit:cover;">`
       : `<span style="font-size:4rem">📦</span>`;
     card.innerHTML = `
