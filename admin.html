@@ -1036,13 +1036,16 @@
 
       try {
         const res = await fetch(SHEET_CSV_URL);
+        if (!res.ok) {
+          throw new Error(`Google Sheets respondió con estado HTTP ${res.status}`);
+        }
         const csvText = await res.text();
         productos = parcearCSV(csvText);
         renderTabla(productos);
       } catch (error) {
         console.error("Error al cargar los datos:", error);
         loading.innerHTML = `
-          <p style="color: var(--rojo);">Error al conectar con la base de datos de Google Sheets.</p>
+          <p style="color: var(--rojo);">Error al conectar con la base de datos de Google Sheets (${error.message}).</p>
           <button class="btn btn-outline" style="margin-top: 1rem;" onclick="cargarDatos()">Reintentar Cargar</button>
         `;
       }
@@ -1050,10 +1053,17 @@
 
     // PARSEO DE CSV
     function parcearCSV(csvText) {
+      if (!csvText || csvText.trim().startsWith('<')) {
+        return [];
+      }
       const lienas = csvText.trim().split('\n');
-      if (lienas.length === 0 || !lienas[0]) return [];
+      if (lienas.length < 2 || !lienas[0]) return [];
       
-      const headers = lienas[0].split(",").map(h => h.trim());
+      const headers = lienas[0].split(",").map(h => h.trim().toLowerCase());
+      if (!headers.includes('nombre') && !headers.includes('categoria')) {
+        return [];
+      }
+
       const filas = lienas.slice(1).map(linea => {
         const valores = linea.match(/("([^"]|"")*"|[^,]*)(,|$)/g).slice(0, -1)
           .map(v => v.replace(/,$/, "").replace(/^"|"$/g, "").replace(/""/g, '"').trim());
