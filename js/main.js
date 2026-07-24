@@ -328,15 +328,24 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
-// =====================================
-// CARGA Y RENDER DE PRODUCTOS
-// =====================================
+function obtenerUrlSinCache(url) {
+  const separador = url.includes('?') ? '&' : '?';
+  return `${url}${separador}_t=${Date.now()}`;
+}
 
 async function cargarProductosDesdeCSV() {
   let cargadoConExito = false;
 
   try {
-    const res = await fetch(SHEET_CSV_URL);
+    const urlAntiCache = obtenerUrlSinCache(SHEET_CSV_URL);
+    const res = await fetch(urlAntiCache, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
+
     if (res.ok) {
       const csvText = await res.text();
       const productos = parcearCSV(csvText);

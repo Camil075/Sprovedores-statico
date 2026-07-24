@@ -1029,14 +1029,26 @@
       e.target.value = ""; // Reset del selector de archivos
     }
 
+    function obtenerUrlSinCache(url) {
+      const separador = url.includes('?') ? '&' : '?';
+      return `${url}${separador}_t=${Date.now()}`;
+    }
+
     // CARGA DE DATOS ORIGINALES DESDE SHEET
     async function cargarDatos() {
       const loading = document.getElementById("loading-state");
       loading.style.display = "block";
-      loading.innerHTML = "<p>Cargando productos de la base de datos de Google Sheets...</p>";
+      loading.innerHTML = "<p>Cargando productos en tiempo real desde Google Sheets...</p>";
 
       try {
-        const res = await fetch(SHEET_CSV_URL);
+        const urlAntiCache = obtenerUrlSinCache(SHEET_CSV_URL);
+        const res = await fetch(urlAntiCache, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        });
         if (!res.ok) {
           throw new Error(`Google Sheets respondió con estado HTTP ${res.status}`);
         }

@@ -74,8 +74,16 @@
 
   /* HERO */
   .hero {
-    background: var(--verde);
-    padding: 5rem 2rem 4rem;
+    background-color: var(--verde);
+    background-image: linear-gradient(
+        rgba(28, 78, 52, 0.85),
+        rgba(28, 78, 52, 0.88)
+      ),
+      url('../img/hero-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 5.5rem 2rem 4.5rem;
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -87,6 +95,7 @@
     inset: 0;
     background: radial-gradient(ellipse at 70% 50%, rgba(224,123,42,0.15) 0%, transparent 60%),
                 radial-gradient(ellipse at 20% 80%, rgba(45,122,79,0.3) 0%, transparent 50%);
+    pointer-events: none;
   }
 
   .hero-badge {
