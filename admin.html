@@ -754,7 +754,8 @@
             <th>Producto</th>
             <th>Categoría</th>
             <th>Descripción</th>
-            <th style="width: 140px;">Precio</th>
+            <th style="width: 120px;">Precio</th>
+            <th style="width: 150px;">Detalle Precio</th>
           </tr>
         </thead>
         <tbody id="table-body">
@@ -1059,8 +1060,9 @@
       const lienas = csvText.trim().split('\n');
       if (lienas.length < 2 || !lienas[0]) return [];
       
-      const headers = lienas[0].split(",").map(h => h.trim().toLowerCase());
-      if (!headers.includes('nombre') && !headers.includes('categoria')) {
+      const headersRaw = lienas[0].split(",").map(h => h.trim());
+      const headersLower = headersRaw.map(h => h.toLowerCase());
+      if (!headersLower.includes('nombre') && !headersLower.includes('categoria')) {
         return [];
       }
 
@@ -1069,9 +1071,22 @@
           .map(v => v.replace(/,$/, "").replace(/^"|"$/g, "").replace(/""/g, '"').trim());
 
         const objeto = {};
-        headers.forEach((header, i) => {
-          objeto[header] = valores[i] || "";
+        headersRaw.forEach((header, i) => {
+          const keyLower = header.toLowerCase();
+          const val = valores[i] || "";
+
+          if (keyLower === 'detalle_precio' || keyLower === 'detalle precio' || keyLower === 'detalle' || keyLower === 'unidad') {
+            objeto.detalle_precio = val;
+          } else {
+            objeto[header] = val;
+            objeto[keyLower] = val;
+          }
         });
+
+        if (!objeto.detalle_precio) {
+          objeto.detalle_precio = objeto['detalle_precio'] || objeto['detalle precio'] || objeto['detalle'] || objeto['unidad'] || "";
+        }
+
         return objeto;
       });
       return filas.filter(p => p.nombre);
@@ -1079,7 +1094,7 @@
 
     // CONVERSIÓN DE ARRAY DE PRODUCTOS A CSV
     function objectToCSV(data) {
-      const headers = ['nombre', 'descripcion', 'precio', 'categoria', 'imagen_url'];
+      const headers = ['nombre', 'descripcion', 'precio', 'detalle_precio', 'categoria', 'imagen_url'];
       const csvRows = [];
       csvRows.push(headers.join(','));
       
@@ -1119,6 +1134,8 @@
           ? `<img src="${p.imagen_url}" alt="${p.nombre}" class="img-preview">`
           : `<div class="img-preview">📦</div>`;
           
+        const detalle = p.detalle_precio || p.detalle || p['detalle precio'] || '-';
+
         tr.innerHTML = `
           <td>${imgContent}</td>
           <td>
@@ -1127,6 +1144,7 @@
           <td><span class="badge">${p.categoria}</span></td>
           <td><div class="prod-desc" title="${p.descripcion}">${p.descripcion}</div></td>
           <td><strong>${p.precio}</strong></td>
+          <td><span style="font-size: 0.85rem; color: var(--naranja); font-weight: 600;">${detalle}</span></td>
         `;
         tbody.appendChild(tr);
       });
@@ -1143,7 +1161,8 @@
       const filtrados = productos.filter(p => 
         (p.nombre && p.nombre.toLowerCase().includes(query)) ||
         (p.categoria && p.categoria.toLowerCase().includes(query)) ||
-        (p.descripcion && p.descripcion.toLowerCase().includes(query))
+        (p.descripcion && p.descripcion.toLowerCase().includes(query)) ||
+        (p.detalle_precio && p.detalle_precio.toLowerCase().includes(query))
       );
       renderTabla(filtrados);
     }
