@@ -333,36 +333,50 @@ function obtenerUrlSinCache(url) {
   return `${url}${separador}_t=${Date.now()}`;
 }
 
-async function cargarProductosDesdeCSV() {
+async function cargarProductos() {
   let cargadoConExito = false;
 
-  try {
-    const urlAntiCache = obtenerUrlSinCache(SHEET_CSV_URL);
-    const res = await fetch(urlAntiCache, {
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache'
-      }
-    });
-
-    if (res.ok) {
-      const csvText = await res.text();
-      const productos = parcearCSV(csvText);
-      if (productos && productos.length > 0) {
-        productosCSV = productos;
+  // 1. Intentar cargar desde Supabase si la librería y credenciales están disponibles
+  if (typeof obtenerProductosSupabase === 'function') {
+    try {
+      const dataSupabase = await obtenerProductosSupabase();
+      if (dataSupabase && dataSupabase.length > 0) {
+        productosCSV = dataSupabase;
         localStorage.setItem('sproveedores_productos_cache', JSON.stringify(productosCSV));
         cargadoConExito = true;
-      } else {
-        console.warn("[Sproveedores] El CSV recibido de Google Sheets está vacío o en formato no reconocido.");
       }
-    } else {
-      console.warn(`[Sproveedores] Servidor Google Sheets retornó estado HTTP ${res.status}. Se utilizará el catálogo guardado en caché.`);
+    } catch (e) {
+      console.warn("[Sproveedores] Supabase no disponible o error al consultar:", e.message || e);
     }
-  } catch (error) {
-    console.warn("[Sproveedores] Conexión remota con Google Sheets no disponible:", error.message || error);
   }
 
+  // 2. Si no se cargó de Supabase, intentar cargar de Google Sheets CSV como respaldo
+  if (!cargadoConExito) {
+    try {
+      const urlAntiCache = obtenerUrlSinCache(SHEET_CSV_URL);
+      const res = await fetch(urlAntiCache, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
+
+      if (res.ok) {
+        const csvText = await res.text();
+        const productos = parcearCSV(csvText);
+        if (productos && productos.length > 0) {
+          productosCSV = productos;
+          localStorage.setItem('sproveedores_productos_cache', JSON.stringify(productosCSV));
+          cargadoConExito = true;
+        }
+      }
+    } catch (error) {
+      console.warn("[Sproveedores] Conexión remota con Google Sheets no disponible:", error.message || error);
+    }
+  }
+
+  // 3. Respaldo final a Caché o productos por defecto
   if (!cargadoConExito) {
     const cache = localStorage.getItem('sproveedores_productos_cache');
     if (cache) {
@@ -559,4 +573,4 @@ function aplicarFiltros() {
 
 // Render e inicialización inicial
 actualizarBadgesCarrito();
-cargarProductosDesdeCSV();
+cargarProductos();

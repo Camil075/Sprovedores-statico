@@ -665,14 +665,26 @@
       <div class="settings-header" id="settings-header" onclick="toggleSettings()">
         <h3>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--verde-claro); vertical-align: middle; margin-right: 0.2rem;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-          Configuración de Servicios (Cloudinary y Google Sheets)
+          Configuración de Servicios (Supabase, Cloudinary y Google Sheets)
         </h3>
         <span id="settings-toggle-icon">▼ Mostrar Ajustes</span>
       </div>
       <div class="settings-body" id="settings-body" style="display: none;">
-        <p style="font-size: 0.9rem; color: var(--gris); margin-bottom: 1.2rem;">Configura tus ajustes de Cloudinary para la subida de fotos y el enlace de edición a tu planilla de Google Sheets.</p>
+        <p style="font-size: 0.9rem; color: var(--gris); margin-bottom: 1.2rem;">Configura las credenciales de tu base de datos Supabase, tu cuenta de Cloudinary para fotos y el enlace de respaldo a Google Sheets.</p>
+
+        <h4 style="font-size: 0.95rem; color: var(--verde); margin-bottom: 0.5rem; border-bottom: 1px solid var(--crema-oscura); padding-bottom: 0.3rem;">1. Base de Datos Supabase (Principal)</h4>
+        <div class="settings-row" style="margin-bottom: 1.2rem;">
+          <div class="form-group">
+            <label for="sb-url">Project URL de Supabase</label>
+            <input type="text" id="sb-url" class="form-control" placeholder="https://xxxx.supabase.co">
+          </div>
+          <div class="form-group">
+            <label for="sb-key">Anon Public Key</label>
+            <input type="password" id="sb-key" class="form-control" placeholder="eyJhbGciOiJIUzI1NiI...">
+          </div>
+        </div>
         
-        <h4 style="font-size: 0.95rem; color: var(--verde); margin-bottom: 0.5rem; border-bottom: 1px solid var(--crema-oscura); padding-bottom: 0.3rem;">1. Ajustes de Cloudinary (Fotos)</h4>
+        <h4 style="font-size: 0.95rem; color: var(--verde); margin-bottom: 0.5rem; border-bottom: 1px solid var(--crema-oscura); padding-bottom: 0.3rem;">2. Ajustes de Cloudinary (Fotos)</h4>
         <div class="settings-row" style="margin-bottom: 1.2rem;">
           <div class="form-group">
             <label for="cld-cloud-name">Cloud Name</label>
@@ -684,7 +696,7 @@
           </div>
         </div>
 
-        <h4 style="font-size: 0.95rem; color: var(--verde); margin-bottom: 0.5rem; border-bottom: 1px solid var(--crema-oscura); padding-bottom: 0.3rem;">2. Enlace a Google Sheets</h4>
+        <h4 style="font-size: 0.95rem; color: var(--verde); margin-bottom: 0.5rem; border-bottom: 1px solid var(--crema-oscura); padding-bottom: 0.3rem;">3. Enlace a Google Sheets (Respaldo)</h4>
         <div class="form-group" style="margin-bottom: 1.5rem;">
           <label for="sheet-edit-url">Enlace de edición de tu planilla de Google Sheets</label>
           <input type="url" id="sheet-edit-url" class="form-control" placeholder="Pega el enlace de tu planilla aquí...">
@@ -701,7 +713,7 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--naranja); vertical-align: middle;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
         Subidor Rápido de Fotos a la Nube 📸
       </h3>
-      <p style="font-size: 0.88rem; color: var(--gris); margin-bottom: 1.2rem;">Sube fotos directamente a tu Cloudinary desde aquí. Obtén el enlace seguro al instante para copiarlo y pegarlo directamente en tu Google Sheet.</p>
+      <p style="font-size: 0.88rem; color: var(--gris); margin-bottom: 1.2rem;">Sube fotos directamente a tu Cloudinary desde aquí para obtener el enlace seguro al instante.</p>
       
       <div style="display: flex; gap: 1.5rem; align-items: center; background: #fafaf8; padding: 1.2rem; border-radius: 16px; border: 1px dashed var(--crema-oscura);">
         <button class="btn btn-primary" onclick="triggerQuickUpload()" style="margin: 0; display: flex; align-items: center; gap: 0.4rem;">
@@ -728,7 +740,7 @@
           Copiar Enlace 📋
         </button>
       </div>
-      <div id="copy-toast" style="display: none; color: var(--verde-claro); font-size: 0.85rem; margin-top: 0.5rem; font-weight: 600; text-align: right;">✓ ¡Enlace copiado al portapapeles! Listo para pegar en Google Sheets.</div>
+      <div id="copy-toast" style="display: none; color: var(--verde-claro); font-size: 0.85rem; margin-top: 0.5rem; font-weight: 600; text-align: right;">✓ ¡Enlace copiado al portapapeles!</div>
     </div>
 
     <!-- BARRA DE HERRAMIENTAS -->
@@ -738,9 +750,13 @@
         <input type="text" class="search-input" id="search-input" placeholder="Buscar productos por nombre, categoría o descripción..." oninput="filtrarProductos()">
       </div>
       <div class="actions-wrap">
-        <button class="btn btn-secondary" onclick="abrirGoogleSheets()" style="background: var(--verde); color: white; display: flex; align-items: center; gap: 0.4rem;" title="Abrir tu planilla de Google Sheets para editar los productos directamente">
+        <button class="btn btn-primary" onclick="abrirModalAgregar()" style="display: flex; align-items: center; gap: 0.4rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          + Agregar Producto
+        </button>
+        <button class="btn btn-outline" onclick="abrirGoogleSheets()" title="Abrir tu planilla de Google Sheets">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-          Editar en Google Sheets 📊
+          Google Sheets 📊
         </button>
       </div>
     </div>
@@ -756,6 +772,7 @@
             <th>Descripción</th>
             <th style="width: 120px;">Precio</th>
             <th style="width: 150px;">Detalle Precio</th>
+            <th style="width: 140px; text-align: center;">Acciones</th>
           </tr>
         </thead>
         <tbody id="table-body">
@@ -771,17 +788,63 @@
       </div>
     </div>
 
+  <!-- MODAL DE PRODUCTO (CREAR / EDITAR) -->
+  <div class="modal-overlay" id="prod-modal-overlay" onclick="cerrarModalProducto()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modal-title">Agregar Producto</h3>
+      </div>
+      <form id="prod-form" onsubmit="guardarProductoForm(event)">
+        <input type="hidden" id="prod-id" value="">
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label for="prod-nombre" style="font-weight: 600; font-size: 0.9rem; color: var(--verde); display: block; margin-bottom: 0.3rem;">Nombre del Producto *</label>
+          <input type="text" id="prod-nombre" class="form-control" required placeholder="Ej. Aceite Vegetal 5L" style="width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid var(--crema-oscura);">
+        </div>
+        <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+          <div class="form-group" style="flex: 1; min-width: 180px;">
+            <label for="prod-categoria" style="font-weight: 600; font-size: 0.9rem; color: var(--verde); display: block; margin-bottom: 0.3rem;">Categoría *</label>
+            <input type="text" id="prod-categoria" class="form-control" required placeholder="alimentos, limpieza..." style="width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid var(--crema-oscura);">
+          </div>
+          <div class="form-group" style="flex: 1; min-width: 180px;">
+            <label for="prod-precio" style="font-weight: 600; font-size: 0.9rem; color: var(--verde); display: block; margin-bottom: 0.3rem;">Precio *</label>
+            <input type="text" id="prod-precio" class="form-control" required placeholder="$6,800" style="width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid var(--crema-oscura);">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label for="prod-detalle" style="font-weight: 600; font-size: 0.9rem; color: var(--verde); display: block; margin-bottom: 0.3rem;">Detalle del Precio / Unidad</label>
+          <input type="text" id="prod-detalle" class="form-control" placeholder="Ej. x Caja (4 unids)" style="width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid var(--crema-oscura);">
+        </div>
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label for="prod-desc" style="font-weight: 600; font-size: 0.9rem; color: var(--verde); display: block; margin-bottom: 0.3rem;">Descripción</label>
+          <textarea id="prod-desc" class="form-control" rows="3" placeholder="Descripción detallada del producto..." style="width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid var(--crema-oscura); font-family: inherit;"></textarea>
+        </div>
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label for="prod-img" style="font-weight: 600; font-size: 0.9rem; color: var(--verde); display: block; margin-bottom: 0.3rem;">URL de Imagen</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="prod-img" class="form-control" placeholder="https://res.cloudinary.com/..." style="flex: 1; padding: 0.7rem; border-radius: 8px; border: 1px solid var(--crema-oscura);">
+            <button type="button" class="btn btn-outline" onclick="triggerImageUpload()" style="padding: 0.5rem 1rem; font-size: 0.85rem;" title="Subir foto a Cloudinary">📷 Subir Foto</button>
+            <input type="file" id="image-file-input" style="display: none;" accept="image/*" onchange="subirImagenACloudinary(event)">
+          </div>
+          <div id="upload-status" style="font-size: 0.8rem; color: var(--gris); margin-top: 0.3rem;"></div>
+          <div id="upload-progress-bar" style="display: none; width: 100%; height: 4px; background: var(--crema-oscura); border-radius: 2px; margin-top: 0.4rem; overflow: hidden;">
+            <div id="upload-progress-fill" style="width: 0%; height: 100%; background: var(--verde-claro);"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="cerrarModalProducto()">Cancelar</button>
+          <button type="submit" id="btn-save-prod" class="btn btn-primary">Guardar Producto</button>
+        </div>
+      </form>
+    </div>
   </div>
 
-  <!-- PIE DE PÁGINA -->
-  <footer>
-    <strong>SProveedores</strong> · Panel de Control de Contenido Privado · Familia Sepúlveda
-  </footer>
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabaseClient.js"></script>
   <script>
     const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUItWTU1FOvPx3xLFS4JRAXZYV4yc3q9zj66W-fQrjG1un_QMXzHIVPHQ0Pwj3eQ/pub?gid=1121183582&single=true&output=csv";
     const PASS_CORRECTA = "sepulveda2026";
     let productos = [];
+    let usandoSupabase = false;
 
     // Verificación de sesión e inicialización de Configuración
     window.onload = function() {
@@ -790,11 +853,17 @@
         cargarDatos();
       }
       
-      // Cargar ajustes guardados de Cloudinary y Google Sheets
+      // Cargar ajustes guardados de Supabase, Cloudinary y Google Sheets
+      const savedSbUrl = localStorage.getItem("sproveedores_supabase_url") || (typeof DEFAULT_SUPABASE_URL !== 'undefined' ? DEFAULT_SUPABASE_URL : "");
+      const savedSbKey = localStorage.getItem("sproveedores_supabase_key") || (typeof DEFAULT_SUPABASE_ANON_KEY !== 'undefined' ? DEFAULT_SUPABASE_ANON_KEY : "");
       const savedCloud = localStorage.getItem("cld_cloud_name") || "kqowzceb";
       const savedPreset = localStorage.getItem("cld_preset") || "preset_sproveedores";
       const savedSheetUrl = localStorage.getItem("sheet_edit_url") || "https://docs.google.com/spreadsheets/d/1KlbVN6gocIbEMffbvseXYP0rItL1ZZTL/edit?gid=1121183582#gid=1121183582";
       
+      const elSbUrl = document.getElementById("sb-url");
+      const elSbKey = document.getElementById("sb-key");
+      if (elSbUrl) elSbUrl.value = savedSbUrl;
+      if (elSbKey) elSbKey.value = savedSbKey;
       document.getElementById("cld-cloud-name").value = savedCloud;
       document.getElementById("cld-preset").value = savedPreset;
       document.getElementById("sheet-edit-url").value = savedSheetUrl;
@@ -823,7 +892,7 @@
       document.getElementById("login-error").style.display = "none";
     }
 
-    // AJUSTES CLOUDINARY
+    // AJUSTES
     function toggleSettings() {
       const body = document.getElementById("settings-body");
       const header = document.getElementById("settings-header");
@@ -841,10 +910,15 @@
     }
 
     function guardarAjustes() {
+      const sbUrl = document.getElementById("sb-url").value.trim();
+      const sbKey = document.getElementById("sb-key").value.trim();
       const cloud = document.getElementById("cld-cloud-name").value.trim();
       const preset = document.getElementById("cld-preset").value.trim();
       const sheetUrl = document.getElementById("sheet-edit-url").value.trim();
       
+      if (typeof reiniciarClienteSupabase === 'function') {
+        reiniciarClienteSupabase(sbUrl, sbKey);
+      }
       localStorage.setItem("cld_cloud_name", cloud);
       localStorage.setItem("cld_preset", preset);
       localStorage.setItem("sheet_edit_url", sheetUrl);
@@ -854,6 +928,9 @@
       setTimeout(() => {
         success.style.display = "none";
       }, 3000);
+
+      // Recargar datos tras guardar ajustes
+      cargarDatos();
     }
 
     function abrirGoogleSheets() {
@@ -939,13 +1016,13 @@
       };
       
       xhr.send(formData);
-      e.target.value = ""; // Reset del input
+      e.target.value = "";
     }
 
     function copiarEnlaceRapido() {
       const urlInput = document.getElementById("quick-result-url");
       urlInput.select();
-      urlInput.setSelectionRange(0, 99999); /* Para móviles */
+      urlInput.setSelectionRange(0, 99999);
       
       navigator.clipboard.writeText(urlInput.value).then(() => {
         const toast = document.getElementById("copy-toast");
@@ -959,7 +1036,7 @@
       });
     }
 
-    // CARGA DE IMAGEN A CLOUDINARY (XHR CON PROGRESO)
+    // CARGA DE IMAGEN A CLOUDINARY
     function triggerImageUpload() {
       const preset = localStorage.getItem("cld_preset") || document.getElementById("cld-preset").value.trim() || "preset_sproveedores";
       if (!preset) {
@@ -992,7 +1069,6 @@
       formData.append("file", file);
       formData.append("upload_preset", preset);
 
-      // Usar XHR para poder capturar el progreso de subida de la imagen
       const xhr = new XMLHttpRequest();
       xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, true);
       
@@ -1026,7 +1102,7 @@
       };
       
       xhr.send(formData);
-      e.target.value = ""; // Reset del selector de archivos
+      e.target.value = "";
     }
 
     function obtenerUrlSinCache(url) {
@@ -1034,13 +1110,32 @@
       return `${url}${separador}_t=${Date.now()}`;
     }
 
-    // CARGA DE DATOS ORIGINALES DESDE SHEET
+    // CARGA DE DATOS (SUPABASE PRINCIPAL, GOOGLE SHEETS RESPALDO)
     async function cargarDatos() {
       const loading = document.getElementById("loading-state");
       loading.style.display = "block";
-      loading.innerHTML = "<p>Cargando productos en tiempo real desde Google Sheets...</p>";
+      loading.innerHTML = "<p>Conectando con la base de datos de productos...</p>";
 
+      usandoSupabase = false;
+
+      // 1. Probar Supabase
+      if (typeof obtenerProductosSupabase === 'function') {
+        try {
+          const dataSupabase = await obtenerProductosSupabase();
+          if (dataSupabase && Array.isArray(dataSupabase)) {
+            productos = dataSupabase;
+            usandoSupabase = true;
+            renderTabla(productos);
+            return;
+          }
+        } catch (e) {
+          console.warn("[Admin] Supabase no disponible:", e);
+        }
+      }
+
+      // 2. Respaldo a Google Sheets CSV
       try {
+        loading.innerHTML = "<p>Supabase no configurado o sin respuesta. Cargando respaldo desde Google Sheets...</p>";
         const urlAntiCache = obtenerUrlSinCache(SHEET_CSV_URL);
         const res = await fetch(urlAntiCache, {
           cache: 'no-store',
@@ -1058,7 +1153,8 @@
       } catch (error) {
         console.error("Error al cargar los datos:", error);
         loading.innerHTML = `
-          <p style="color: var(--rojo);">Error al conectar con la base de datos de Google Sheets (${error.message}).</p>
+          <p style="color: var(--rojo);">Error al conectar con la base de datos (${error.message}).</p>
+          <p style="font-size: 0.85rem; margin-top: 0.5rem;">Para activar Supabase, ingresa la URL y Anon Key en "Configuración de Servicios".</p>
           <button class="btn btn-outline" style="margin-top: 1rem;" onclick="cargarDatos()">Reintentar Cargar</button>
         `;
       }
@@ -1104,26 +1200,6 @@
       return filas.filter(p => p.nombre);
     }
 
-    // CONVERSIÓN DE ARRAY DE PRODUCTOS A CSV
-    function objectToCSV(data) {
-      const headers = ['nombre', 'descripcion', 'precio', 'detalle_precio', 'categoria', 'imagen_url'];
-      const csvRows = [];
-      csvRows.push(headers.join(','));
-      
-      for (const row of data) {
-        const values = headers.map(header => {
-          const val = row[header] || "";
-          let escaped = String(val).replace(/"/g, '""');
-          if (escaped.includes(',') || escaped.includes('\n') || escaped.includes('"')) {
-            escaped = `"${escaped}"`;
-          }
-          return escaped;
-        });
-        csvRows.push(values.join(','));
-      }
-      return csvRows.join('\n');
-    }
-
     // RENDERIZAR TABLA DE PRODUCTOS
     function renderTabla(lista) {
       const tbody = document.getElementById("table-body");
@@ -1147,6 +1223,7 @@
           : `<div class="img-preview">📦</div>`;
           
         const detalle = p.detalle_precio || p.detalle || p['detalle precio'] || '-';
+        const prodId = p.id !== undefined ? p.id : idx;
 
         tr.innerHTML = `
           <td>${imgContent}</td>
@@ -1154,9 +1231,13 @@
             <div class="prod-name">${p.nombre}</div>
           </td>
           <td><span class="badge">${p.categoria}</span></td>
-          <td><div class="prod-desc" title="${p.descripcion}">${p.descripcion}</div></td>
+          <td><div class="prod-desc" title="${p.descripcion}">${p.descripcion || '-'}</div></td>
           <td><strong>${p.precio}</strong></td>
           <td><span style="font-size: 0.85rem; color: var(--naranja); font-weight: 600;">${detalle}</span></td>
+          <td style="text-align: center;">
+            <button class="btn-action btn-edit" onclick="abrirModalEditar('${prodId}')" title="Editar producto">✏️ Editar</button>
+            <button class="btn-action btn-delete" onclick="confirmarEliminarProducto('${prodId}', '${p.nombre.replace(/'/g, "\\'")}')" title="Eliminar producto">🗑️ Borrar</button>
+          </td>
         `;
         tbody.appendChild(tr);
       });
@@ -1179,6 +1260,122 @@
       renderTabla(filtrados);
     }
 
+    // MODAL DE CREACIÓN / EDICIÓN
+    function abrirModalAgregar() {
+      if (!usandoSupabase) {
+        const confirmar = confirm("Aviso: Aún no has configurado tus credenciales de Supabase. Si agregas productos, no se guardarán permanentemente en la nube hasta configurar la URL y Anon Key en 'Ajustes'. ¿Deseas configurarlas ahora?");
+        if (confirmar) {
+          const body = document.getElementById("settings-body");
+          if (body.style.display === "none") toggleSettings();
+          document.getElementById("cloudinary-card").scrollIntoView({ behavior: 'smooth' });
+          return;
+        }
+      }
+
+      document.getElementById("modal-title").innerText = "Agregar Nuevo Producto";
+      document.getElementById("prod-id").value = "";
+      document.getElementById("prod-nombre").value = "";
+      document.getElementById("prod-categoria").value = "";
+      document.getElementById("prod-precio").value = "";
+      document.getElementById("prod-detalle").value = "";
+      document.getElementById("prod-desc").value = "";
+      document.getElementById("prod-img").value = "";
+      document.getElementById("upload-status").innerText = "";
+
+      const overlay = document.getElementById("prod-modal-overlay");
+      overlay.classList.add("active");
+    }
+
+    function abrirModalEditar(idStr) {
+      let p = null;
+      if (usandoSupabase) {
+        p = productos.find(item => String(item.id) === String(idStr));
+      } else {
+        const idx = parseInt(idStr, 10);
+        p = productos[idx];
+      }
+
+      if (!p) {
+        alert("Producto no encontrado.");
+        return;
+      }
+
+      document.getElementById("modal-title").innerText = "Editar Producto";
+      document.getElementById("prod-id").value = p.id !== undefined ? p.id : idStr;
+      document.getElementById("prod-nombre").value = p.nombre || "";
+      document.getElementById("prod-categoria").value = p.categoria || "";
+      document.getElementById("prod-precio").value = p.precio || "";
+      document.getElementById("prod-detalle").value = p.detalle_precio || p.detalle || "";
+      document.getElementById("prod-desc").value = p.descripcion || "";
+      document.getElementById("prod-img").value = p.imagen_url || "";
+      document.getElementById("upload-status").innerText = "";
+
+      const overlay = document.getElementById("prod-modal-overlay");
+      overlay.classList.add("active");
+    }
+
+    function cerrarModalProducto() {
+      const overlay = document.getElementById("prod-modal-overlay");
+      overlay.classList.remove("active");
+    }
+
+    async function guardarProductoForm(e) {
+      e.preventDefault();
+      const id = document.getElementById("prod-id").value;
+      const btnSave = document.getElementById("btn-save-prod");
+      
+      const productoData = {
+        nombre: document.getElementById("prod-nombre").value.trim(),
+        categoria: document.getElementById("prod-categoria").value.trim(),
+        precio: document.getElementById("prod-precio").value.trim(),
+        detalle_precio: document.getElementById("prod-detalle").value.trim(),
+        descripcion: document.getElementById("prod-desc").value.trim(),
+        imagen_url: document.getElementById("prod-img").value.trim()
+      };
+
+      if (!usandoSupabase) {
+        alert("Atención: Supabase no está configurado. Configura las credenciales en la sección de Ajustes para guardar en la base de datos.");
+        return;
+      }
+
+      btnSave.disabled = true;
+      btnSave.innerText = "Guardando...";
+
+      try {
+        if (id) {
+          await actualizarProductoSupabase(id, productoData);
+        } else {
+          await guardarProductoSupabase(productoData);
+        }
+        cerrarModalProducto();
+        await cargarDatos();
+      } catch (err) {
+        console.error("Error al guardar producto:", err);
+        alert("Error al guardar en Supabase: " + (err.message || err));
+      } finally {
+        btnSave.disabled = false;
+        btnSave.innerText = "Guardar Producto";
+      }
+    }
+
+    async function confirmarEliminarProducto(idStr, nombre) {
+      if (!confirm(`¿Estás seguro de que deseas eliminar "${nombre}"?`)) {
+        return;
+      }
+
+      if (!usandoSupabase) {
+        alert("Atención: Configura las credenciales de Supabase en Ajustes para eliminar productos de la base de datos.");
+        return;
+      }
+
+      try {
+        await eliminarProductoSupabase(idStr);
+        await cargarDatos();
+      } catch (err) {
+        console.error("Error al eliminar producto:", err);
+        alert("Error al eliminar de Supabase: " + (err.message || err));
+      }
+    }
   </script>
 </body>
 </html>
