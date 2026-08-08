@@ -799,6 +799,10 @@ VALUES ('admin', 'sepulveda2026', 'Administrador');</code></pre>
         <input type="text" class="search-input" id="search-input" placeholder="Buscar productos por nombre, categoría o descripción..." oninput="filtrarProductos()">
       </div>
       <div class="actions-wrap">
+        <button class="btn btn-secondary" onclick="abrirEditorMasivo()" style="display: flex; align-items: center; gap: 0.4rem; background: var(--verde-claro); color: white; border: none;" title="Editar todos los productos en una grilla interactiva">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          ✏️ Editor Masivo
+        </button>
         <button class="btn btn-primary" onclick="abrirModalAgregar()" style="display: flex; align-items: center; gap: 0.4rem;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           + Agregar Producto
@@ -884,6 +888,49 @@ VALUES ('admin', 'sepulveda2026', 'Administrador');</code></pre>
           <button type="submit" id="btn-save-prod" class="btn btn-primary">Guardar Producto</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL / VISTA EDITOR MASIVO -->
+  <div class="modal-overlay" id="bulk-editor-overlay" onclick="cerrarEditorMasivo()">
+    <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 1200px; width: 95%; max-height: 90vh; display: flex; flex-direction: column; padding: 1.8rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 2px solid var(--crema-oscura); padding-bottom: 0.8rem; flex-wrap: wrap; gap: 0.8rem;">
+        <h2 style="font-family: 'Playfair Display', serif; color: var(--verde); font-size: 1.4rem; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--naranja);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Editor Masivo de Productos 📊
+        </h2>
+        <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+          <button class="btn btn-outline" onclick="agregarFilaMasiva()" style="height: 38px; padding: 0 1rem; font-size: 0.88rem;">+ Añadir Fila</button>
+          <button class="btn btn-primary" id="btn-save-bulk" onclick="guardarEditorMasivo()" style="height: 38px; padding: 0 1.2rem; background: var(--verde-claro); font-size: 0.88rem;">💾 Guardar Todo</button>
+          <button class="btn btn-outline" onclick="cerrarEditorMasivo()" style="height: 38px; padding: 0 1rem; color: var(--rojo); border-color: var(--rojo); font-size: 0.88rem;">✕ Cancelar</button>
+        </div>
+      </div>
+
+      <p style="font-size: 0.88rem; color: var(--gris); margin-bottom: 1rem;">
+        Edita directamente los datos de cada producto como en una planilla. Modifica nombres, categorías, precios, descripciones y URLs de imágenes. Presiona <strong>Guardar Todo</strong> para aplicar los cambios en Supabase.
+      </p>
+
+      <div style="flex: 1; overflow-y: auto; border: 1px solid var(--crema-oscura); border-radius: 12px; background: white;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;" id="bulk-table">
+          <thead style="position: sticky; top: 0; background: var(--verde); color: white; z-index: 10;">
+            <tr>
+              <th style="padding: 0.7rem; text-align: left; width: 65px;">ID</th>
+              <th style="padding: 0.7rem; text-align: left; width: 22%;">Nombre</th>
+              <th style="padding: 0.7rem; text-align: left; width: 14%;">Categoría</th>
+              <th style="padding: 0.7rem; text-align: left; width: 12%;">Precio</th>
+              <th style="padding: 0.7rem; text-align: left; width: 14%;">Detalle Precio</th>
+              <th style="padding: 0.7rem; text-align: left; width: 22%;">Descripción</th>
+              <th style="padding: 0.7rem; text-align: left; width: 14%;">URL Imagen</th>
+              <th style="padding: 0.7rem; text-align: center; width: 45px;">Acción</th>
+            </tr>
+          </thead>
+          <tbody id="bulk-table-body">
+            <!-- Filas dinámicas -->
+          </tbody>
+        </table>
+      </div>
+      
+      <div id="bulk-status" style="margin-top: 0.8rem; font-size: 0.9rem; font-weight: 600; text-align: right; min-height: 1.2rem;"></div>
     </div>
   </div>
 
@@ -1474,6 +1521,144 @@ VALUES ('admin', 'sepulveda2026', 'Administrador');</code></pre>
       } catch (err) {
         console.error("Error al eliminar producto:", err);
         alert("Error al eliminar de Supabase: " + (err.message || err));
+      }
+    }
+
+    // LÓGICA DEL EDITOR MASIVO
+    let idsEliminadosMasivos = [];
+
+    function abrirEditorMasivo() {
+      if (!usandoSupabase) {
+        const conf = confirm("Atención: Supabase no está configurado. Puedes previsualizar el Editor Masivo, pero para guardar los cambios permanentemente en la nube debes configurar Supabase en la sección de Ajustes. ¿Deseas abrirlo?");
+        if (!conf) return;
+      }
+
+      idsEliminadosMasivos = [];
+      renderTablaMasiva();
+      document.getElementById("bulk-editor-overlay").classList.add("active");
+      document.getElementById("bulk-status").innerText = "";
+    }
+
+    function cerrarEditorMasivo() {
+      document.getElementById("bulk-editor-overlay").classList.remove("active");
+    }
+
+    function renderTablaMasiva() {
+      const tbody = document.getElementById("bulk-table-body");
+      tbody.innerHTML = "";
+
+      productos.forEach((p, idx) => {
+        const tr = document.createElement("tr");
+        const prodId = p.id !== undefined && p.id !== null ? p.id : `new_${Date.now()}_${idx}`;
+        tr.dataset.id = prodId;
+
+        tr.innerHTML = `
+          <td style="padding: 0.4rem; font-size: 0.75rem; color: var(--gris); font-weight: 600;">${p.id || 'Nuevo'}</td>
+          <td style="padding: 0.4rem;"><input type="text" class="form-control bulk-nombre" value="${(p.nombre || '').replace(/"/g, '&quot;')}" style="width: 100%; padding: 0.4rem; border-radius: 6px; font-size: 0.85rem;"></td>
+          <td style="padding: 0.4rem;"><input type="text" class="form-control bulk-categoria" value="${(p.categoria || '').replace(/"/g, '&quot;')}" style="width: 100%; padding: 0.4rem; border-radius: 6px; font-size: 0.85rem;"></td>
+          <td style="padding: 0.4rem;"><input type="text" class="form-control bulk-precio" value="${(p.precio || '').replace(/"/g, '&quot;')}" style="width: 100%; padding: 0.4rem; border-radius: 6px; font-size: 0.85rem;"></td>
+          <td style="padding: 0.4rem;"><input type="text" class="form-control bulk-detalle" value="${(p.detalle_precio || p.detalle || '').replace(/"/g, '&quot;')}" style="width: 100%; padding: 0.4rem; border-radius: 6px; font-size: 0.85rem;"></td>
+          <td style="padding: 0.4rem;"><input type="text" class="form-control bulk-desc" value="${(p.descripcion || '').replace(/"/g, '&quot;')}" style="width: 100%; padding: 0.4rem; border-radius: 6px; font-size: 0.85rem;"></td>
+          <td style="padding: 0.4rem;"><input type="text" class="form-control bulk-img" value="${(p.imagen_url || '').replace(/"/g, '&quot;')}" placeholder="URL foto..." style="width: 100%; padding: 0.4rem; border-radius: 6px; font-size: 0.85rem;"></td>
+          <td style="padding: 0.4rem; text-align: center;">
+            <button type="button" class="btn-action btn-delete" onclick="eliminarFilaMasiva(this, '${prodId}')" title="Eliminar fila">🗑️</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if (productos.length === 0) {
+        agregarFilaMasiva();
+      }
+    }
+
+    function agregarFilaMasiva() {
+      const tbody = document.getElementById("bulk-table-body");
+      const tr = document.createElement("tr");
+      const tempId = `new_${Date.now()}_${Math.floor(Math.random()*1000)}`;
+      tr.dataset.id = tempId;
+
+      tr.innerHTML = `
+        <td style="padding: 0.4rem; font-size: 0.75rem; color: var(--naranja); font-weight: 600;">Nuevo</td>
+        <td style="padding: 0.4rem;"><input type="text" class="form-control bulk-nombre" placeholder="Nombre..." style="width: 100%; padding: 0.4rem; border-radius: 6px; font-size: 0.85rem;"></td>
+        <td style="padding: 0.4rem;"><input type="text" class="form-control bulk-categoria" placeholder="Categoría..." style="width: 100%; padding: 0.4rem; border-radius: 6px; font-size: 0.85rem;"></td>
+        <td style="padding: 0.4rem;"><input type="text" class="form-control bulk-precio" placeholder="Precio..." style="width: 100%; padding: 0.4rem; border-radius: 6px; font-size: 0.85rem;"></td>
+        <td style="padding: 0.4rem;"><input type="text" class="form-control bulk-detalle" placeholder="Detalle precio..." style="width: 100%; padding: 0.4rem; border-radius: 6px; font-size: 0.85rem;"></td>
+        <td style="padding: 0.4rem;"><input type="text" class="form-control bulk-desc" placeholder="Descripción..." style="width: 100%; padding: 0.4rem; border-radius: 6px; font-size: 0.85rem;"></td>
+        <td style="padding: 0.4rem;"><input type="text" class="form-control bulk-img" placeholder="URL foto..." style="width: 100%; padding: 0.4rem; border-radius: 6px; font-size: 0.85rem;"></td>
+        <td style="padding: 0.4rem; text-align: center;">
+          <button type="button" class="btn-action btn-delete" onclick="eliminarFilaMasiva(this, '${tempId}')" title="Eliminar fila">🗑️</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+
+      const inputNombre = tr.querySelector('.bulk-nombre');
+      if (inputNombre) inputNombre.focus();
+    }
+
+    function eliminarFilaMasiva(btn, idStr) {
+      const tr = btn.closest('tr');
+      if (!tr) return;
+
+      if (idStr && !String(idStr).startsWith('new_')) {
+        idsEliminadosMasivos.push(idStr);
+      }
+      tr.remove();
+    }
+
+    async function guardarEditorMasivo() {
+      const btnSave = document.getElementById("btn-save-bulk");
+      const statusDiv = document.getElementById("bulk-status");
+
+      if (!usandoSupabase) {
+        alert("Para guardar cambios masivos de forma permanente, primero configura tus credenciales de Supabase en los Ajustes del panel.");
+        return;
+      }
+
+      const rows = document.querySelectorAll("#bulk-table-body tr");
+      const listaFinal = [];
+
+      rows.forEach(tr => {
+        const id = tr.dataset.id;
+        const nombre = tr.querySelector(".bulk-nombre")?.value.trim() || "";
+        const categoria = tr.querySelector(".bulk-categoria")?.value.trim() || "";
+        const precio = tr.querySelector(".bulk-precio")?.value.trim() || "";
+        const detalle_precio = tr.querySelector(".bulk-detalle")?.value.trim() || "";
+        const descripcion = tr.querySelector(".bulk-desc")?.value.trim() || "";
+        const imagen_url = tr.querySelector(".bulk-img")?.value.trim() || "";
+
+        if (nombre) {
+          listaFinal.push({
+            id: (id && !id.startsWith("new_")) ? id : undefined,
+            nombre,
+            categoria,
+            precio,
+            detalle_precio,
+            descripcion,
+            imagen_url
+          });
+        }
+      });
+
+      btnSave.disabled = true;
+      btnSave.innerText = "Guardando...";
+      statusDiv.style.color = "var(--verde-claro)";
+      statusDiv.innerText = "Guardando cambios en Supabase...";
+
+      try {
+        await guardarMasivoSupabase(listaFinal, idsEliminadosMasivos);
+        statusDiv.innerText = "✓ ¡Todos los cambios guardados correctamente!";
+        setTimeout(() => {
+          cerrarEditorMasivo();
+          cargarDatos();
+        }, 1200);
+      } catch (err) {
+        console.error("Error al guardar cambios masivos:", err);
+        statusDiv.style.color = "var(--rojo)";
+        statusDiv.innerText = "Error al guardar: " + (err.message || err);
+      } finally {
+        btnSave.disabled = false;
+        btnSave.innerText = "💾 Guardar Todo";
       }
     }
   </script>

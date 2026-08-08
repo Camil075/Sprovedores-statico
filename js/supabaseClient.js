@@ -124,6 +124,47 @@ async function eliminarProductoSupabase(id) {
   return true;
 }
 
+async function guardarMasivoSupabase(listaProductos, idsEliminar = []) {
+  const sb = getSupabase();
+  if (!sb) throw new Error("Cliente de Supabase no configurado.");
+
+  if (idsEliminar && idsEliminar.length > 0) {
+    const { error: errDelete } = await sb
+      .from('productos')
+      .delete()
+      .in('id', idsEliminar);
+    if (errDelete) throw errDelete;
+  }
+
+  if (listaProductos && listaProductos.length > 0) {
+    const payload = listaProductos.map(p => {
+      const item = {
+        nombre: p.nombre,
+        descripcion: p.descripcion || '',
+        precio: p.precio || 'Consultar',
+        detalle_precio: p.detalle_precio || p.detalle || '',
+        categoria: p.categoria || 'alimentos',
+        imagen_url: p.imagen_url || ''
+      };
+      if (p.id !== undefined && p.id !== null && p.id !== "" && !String(p.id).startsWith("new_")) {
+        item.id = p.id;
+      }
+      return item;
+    });
+
+    const { data, error: errUpsert } = await sb
+      .from('productos')
+      .upsert(payload)
+      .select();
+
+    if (errUpsert) throw errUpsert;
+    return data;
+  }
+
+  return true;
+}
+
+
 // Autenticación de usuarios basada en la tabla 'usuarios' de Supabase
 async function autenticarUsuarioSupabase(usuarioInput, claveInput) {
   const sb = getSupabase();
