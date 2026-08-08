@@ -123,3 +123,48 @@ async function eliminarProductoSupabase(id) {
   if (error) throw error;
   return true;
 }
+
+// Autenticación de usuarios basada en la tabla 'usuarios' de Supabase
+async function autenticarUsuarioSupabase(usuarioInput, claveInput) {
+  const sb = getSupabase();
+  if (!sb) return { success: false, reason: 'no_client' };
+
+  try {
+    const { data, error } = await sb
+      .from('usuarios')
+      .select('*');
+
+    if (error) {
+      console.warn("[Supabase] Error al consultar la tabla usuarios:", error.message || error);
+      return { success: false, error: error.message };
+    }
+
+    if (!data || data.length === 0) {
+      return { success: false, reason: 'empty_table' };
+    }
+
+    const usuarioValido = data.find(u => {
+      const dbUser = String(u.usuario || u.username || u.email || '').toLowerCase().trim();
+      const dbClave = String(u.clave || u.password || u.contrasena || '').trim();
+      
+      const inputU = String(usuarioInput || '').toLowerCase().trim();
+      const inputC = String(claveInput || '').trim();
+
+      if (inputU) {
+        return (dbUser === inputU || dbUser.split('@')[0] === inputU) && dbClave === inputC;
+      } else {
+        return dbClave === inputC;
+      }
+    });
+
+    if (usuarioValido) {
+      return { success: true, user: usuarioValido };
+    } else {
+      return { success: false, reason: 'invalid_credentials' };
+    }
+  } catch (err) {
+    console.warn("[Supabase] Error al autenticar usuario:", err.message || err);
+    return { success: false, error: err.message };
+  }
+}
+

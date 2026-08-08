@@ -1,15 +1,33 @@
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUItWTU1FOvPx3xLFS4JRAXZYV4yc3q9zj66W-fQrjG1un_QMXzHIVPHQ0Pwj3eQ/pub?gid=1121183582&single=true&output=csv";
 
-// Números de contacto de WhatsApp
-const WSP1 = "56942597455";
-const WSP2 = "56990241662";
+// Números de contacto de WhatsApp (configurables en el Admin)
+function getWspConfig() {
+  return {
+    num1: localStorage.getItem("sproveedores_wsp1_num") || "56942597455",
+    label1: localStorage.getItem("sproveedores_wsp1_label") || "Contacto Ventas 1",
+    num2: localStorage.getItem("sproveedores_wsp2_num") || "56990241662",
+    label2: localStorage.getItem("sproveedores_wsp2_label") || "Contacto Ventas 2"
+  };
+}
+
+function obtenerNumeroWspLimpio(numStr) {
+  let limpio = String(numStr || '').replace(/\D/g, '');
+  if (limpio.length === 9 && limpio.startsWith('9')) {
+    limpio = '56' + limpio;
+  }
+  return limpio;
+}
 
 function formatearTelefonoChileno(numStr) {
-  const limpio = String(numStr).replace(/\D/g, '');
+  let limpio = String(numStr || '').replace(/\D/g, '');
+  if (limpio.length === 9 && limpio.startsWith('9')) {
+    limpio = '56' + limpio;
+  }
   if (limpio.length === 11 && limpio.startsWith('569')) {
     return `+56 9 ${limpio.slice(3, 7)} ${limpio.slice(7)}`;
   }
-  return numStr;
+  if (numStr && String(numStr).includes('+')) return numStr;
+  return numStr || '';
 }
 
 let filtroActual = 'todos';
@@ -74,18 +92,27 @@ let mensajeWspActual = "";
 
 function abrirModalWsp(mensaje) {
   mensajeWspActual = mensaje || "Hola, quiero consultar sobre sus productos";
+  const { num1, label1, num2, label2 } = getWspConfig();
 
   const link1 = document.getElementById("wsp-modal-link-1");
   const link2 = document.getElementById("wsp-modal-link-2");
 
   if (link1 && link2) {
-    link1.href = `https://wa.me/${WSP1}?text=${encodeURIComponent(mensajeWspActual)}`;
-    link2.href = `https://wa.me/${WSP2}?text=${encodeURIComponent(mensajeWspActual)}`;
+    const clean1 = obtenerNumeroWspLimpio(num1);
+    const clean2 = obtenerNumeroWspLimpio(num2);
+
+    link1.href = `https://wa.me/${clean1}?text=${encodeURIComponent(mensajeWspActual)}`;
+    link2.href = `https://wa.me/${clean2}?text=${encodeURIComponent(mensajeWspActual)}`;
 
     const phone1 = document.getElementById("wsp-phone-1") || link1.querySelector(".wsp-modal-btn-phone");
     const phone2 = document.getElementById("wsp-phone-2") || link2.querySelector(".wsp-modal-btn-phone");
-    if (phone1) phone1.innerText = formatearTelefonoChileno(WSP1);
-    if (phone2) phone2.innerText = formatearTelefonoChileno(WSP2);
+    const name1 = link1.querySelector(".wsp-modal-btn-name");
+    const name2 = link2.querySelector(".wsp-modal-btn-name");
+
+    if (phone1) phone1.innerText = formatearTelefonoChileno(num1);
+    if (phone2) phone2.innerText = formatearTelefonoChileno(num2);
+    if (name1 && label1) name1.innerText = label1;
+    if (name2 && label2) name2.innerText = label2;
   }
 
   const overlay = document.getElementById("wsp-modal-overlay");

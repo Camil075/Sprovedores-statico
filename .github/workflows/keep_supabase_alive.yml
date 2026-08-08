@@ -1,0 +1,18 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    # Se ejecuta automáticamente todos los días a las 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        run: |
+          curl -s -f -X GET "https://vlrnbgvmcwizcvlurijw.supabase.co/rest/v1/productos?select=id&limit=1" \
+            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZscm5iZ3ZtY3dpemN2bHVyaWp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMzU5NDYsImV4cCI6MjEwMTcxMTk0Nn0.Jfqy2zcBWBxvyC6XN3ysJPdea1lxoKJgTb2pLoKvfvo" \
+            -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZscm5iZ3ZtY3dpemN2bHVyaWp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMzU5NDYsImV4cCI6MjEwMTcxMTk0Nn0.Jfqy2zcBWBxvyC6XN3ysJPdea1lxoKJgTb2pLoKvfvo" || echo "Nota: Si el proyecto esta en pausa, ingresa a Supabase para reanudarlo."
+          echo "Ping realizado exitosamente."
